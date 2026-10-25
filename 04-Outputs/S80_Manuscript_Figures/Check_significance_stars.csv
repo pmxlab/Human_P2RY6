@@ -9,12 +9,12 @@
 "1b","Normal","CKD",0.03112,0.04149,"*","*","*",TRUE
 "1c","Healthy Reference Tissue","Acute Kidney Injury",8.629e-08,1.726e-07,"****","****","****",TRUE
 "1c","Healthy Reference Tissue","Chronic Kidney Disease",5.089e-05,5.089e-05,"****","****","****",TRUE
-"1d","Healthy Reference Tissue","Acute Kidney Injury",1.107e-05,2.214e-05,"****","****","****",TRUE
-"1d","Healthy Reference Tissue","Chronic Kidney Disease",2.803e-05,2.803e-05,"****","****","****",TRUE
+"1d","Healthy Reference Tissue","Acute Kidney Injury",8.629e-08,1.726e-07,"****","****","****",TRUE
+"1d","Healthy Reference Tissue","Chronic Kidney Disease",8.547e-07,8.547e-07,"****","****","****",TRUE
 "1e","Healthy Reference","AKI",0.0004423,0.0008847,"***","***","***",TRUE
 "1e","Healthy Reference","CKD",0.259,0.259,"ns","ns","ns",TRUE
-"1f","Healthy Reference","AKI",0.0009699,0.00194,"**","***","**",TRUE
-"1f","Healthy Reference","CKD",0.1282,0.1282,"ns","ns","ns",TRUE
+"1f","Healthy Reference","AKI",0.0004423,0.0008847,"***","***","***",TRUE
+"1f","Healthy Reference","CKD",0.08095,0.08095,"ns","ns","ns",TRUE
 "2a","Normal","Early_DKD",0.9546,0.9546,"ns","ns","ns",TRUE
 "2a","Normal","Advanced_DKD",0.0009591,0.003286,"**","***","**",TRUE
 "2a","Normal","AKI",0.001643,0.003286,"**","**","**",TRUE

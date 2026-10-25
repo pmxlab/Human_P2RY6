@@ -12,26 +12,28 @@ DKD-focused:
 "KPMP scRNA-seq (incl. Lake 2023)","scRNA-seq","111 (Healthy 37, AKI 20, CKD 51, DM-R 3)","enrollment category not studied (n=3);
 < 20 PT cells (n=6);
 < 20 stroma cells (n=16);
-DKD-focused analysis: CKD without DKD (stroma) (n=26)","All conditions:
+DKD-focused analysis: CKD without DKD (stroma) (n=26);
+DKD-focused analysis: CKD without DKD (PT) (n=30)","All conditions:
 - PT: Healthy 33, AKI 20, CKD 49 (n=102)
 - Stroma: Healthy 36, AKI 15, CKD 41 (n=92)
 - Fibroblasts: not analyzed (fewer than 20 fibroblasts in most participants); available: Healthy 5, AKI 3, CKD 6 (n=14)
 - PT and stroma (matched): Healthy 32, AKI 15, CKD 39 (n=86)
 DKD-focused:
-- PT: Healthy 32, AKI 15, CKD 15 (n=62)
+- PT: Healthy 33, AKI 20, CKD 19 (n=72)
 - Stroma: Healthy 36, AKI 15, CKD 15 (n=66)
 - Fibroblasts: not analyzed (fewer than 20 fibroblasts in most participants); available: Healthy 5, AKI 3, CKD 3 (n=11)
 - PT and stroma (matched): Healthy 32, AKI 15, CKD 15 (n=62)","By KPMP: integrated object including the Lake et al. (2023) atlas, with raw UMI counts, batch-corrected expression values and cell annotations. In this study: raw UMI counts log-normalized with Seurat LogNormalize (counts divided by the cell's total count, multiplied by 10,000, natural log of 1 + x); the batch-corrected values provided by KPMP were not used. Log-normalized values averaged per participant (pseudobulk), keeping participants with >= 20 cells in the compartment. PT: cell type 'epithelial cell of proximal tubule'. Stroma: cell class 'stroma cells' (FIB 18%, VSMC/P 82%). Matched: participants with both PT and stroma profiles. DKD-focused: CKD restricted to adjudicated diabetic kidney disease."
 "KPMP snRNA-seq","snRNA-seq","157 (Healthy 40, AKI 33, CKD 72, DM-R 11, No clinical record 1)","enrollment category not studied (n=12);
 < 20 PT nuclei (n=3);
 < 20 fibroblast nuclei (n=15);
-DKD-focused analysis: CKD without DKD (fibroblast) (n=36)","All conditions:
+DKD-focused analysis: CKD without DKD (fibroblast) (n=36);
+DKD-focused analysis: CKD without DKD (PT) (n=43)","All conditions:
 - PT: Healthy 38, AKI 33, CKD 71 (n=142)
 - Stroma: not analyzed (fibroblast subclass analyzed instead; stroma = FIB + VSM/P); available: Healthy 36, AKI 31, CKD 67 (n=134)
 - Fibroblasts: Healthy 36, AKI 31, CKD 63 (n=130)
 - PT and fibroblasts (matched): Healthy 35, AKI 31, CKD 62 (n=128)
 DKD-focused:
-- PT: Healthy 35, AKI 31, CKD 26 (n=92)
+- PT: Healthy 38, AKI 33, CKD 28 (n=99)
 - Stroma: not analyzed (fibroblast subclass analyzed instead; stroma = FIB + VSM/P); available: Healthy 36, AKI 31, CKD 28 (n=95)
 - Fibroblasts: Healthy 36, AKI 31, CKD 27 (n=94)
 - PT and fibroblasts (matched): Healthy 35, AKI 31, CKD 26 (n=92)","By KPMP: single-nucleus atlas with raw UMI counts and cell annotations. In this study: raw UMI counts log-normalized with Seurat LogNormalize (counts divided by the nucleus's total count, multiplied by 10,000, natural log of 1 + x; identical to the normalized values provided by KPMP). Log-normalized values averaged per participant (pseudobulk), keeping participants with >= 20 nuclei in the compartment. PT: subclass 'PT'. Fibroblasts: subclass 'FIB' (all fibroblast subtypes). Matched: participants with both PT and fibroblast profiles. DKD-focused: CKD restricted to adjudicated diabetic kidney disease."

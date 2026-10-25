@@ -2,9 +2,9 @@
 "1a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
 "1b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
 "1c","KPMP scRNA-seq","All conditions","PT",33,0,0,20,49,102,102,102,TRUE
-"1d","KPMP scRNA-seq","DKD-focused","PT",32,0,0,15,15,62,62,62,TRUE
+"1d","KPMP scRNA-seq","DKD-focused","PT",33,0,0,20,19,72,72,72,TRUE
 "1e","KPMP snRNA-seq","All conditions","PT",38,0,0,33,71,142,142,142,TRUE
-"1f","KPMP snRNA-seq","DKD-focused","PT",35,0,0,31,26,92,92,92,TRUE
+"1f","KPMP snRNA-seq","DKD-focused","PT",38,0,0,33,28,99,99,99,TRUE
 "2a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
 "2b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
 "2c","KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,92,92,TRUE

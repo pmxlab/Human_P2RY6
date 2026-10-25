@@ -18,8 +18,9 @@ library(ggpubr)
 # SETTINGS ----
 # ============================================================================#
 
-s50_rds <- "../04-Outputs/S50_KPMP_scRNA/S50_pseudobulk.rds"
-out_dir <- "../04-Outputs/S52_scRNA_DKD_Focused"
+s50_rds   <- "../04-Outputs/S50_KPMP_scRNA/S50_pseudobulk.rds"
+clin_file <- "../../KPMP_scRNA/OpenAccessClinicalData/20251205_OpenAccessClinicalData.csv"
+out_dir   <- "../04-Outputs/S52_scRNA_DKD_Focused"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 condition_levels <- c("Healthy Reference Tissue",
@@ -151,9 +152,21 @@ pb_fib <- s50$pb_fib %>%
 keep_samples <- unique(pb_fib$SampleID)
 cat("\nSamples retained after DKD filter:", length(keep_samples), "\n")
 
-# 3) Apply same restriction to PT and subtype tables
+# 3) Filter PT table by each participant's own adjudicated category.
+# pb_pt has no adjudication column; SampleID is the KPMP Participant.ID for
+# AKI/CKD participants (matches the KPMPID-based adjudication of pb_fib).
+# Filtering PT by membership in the stroma table would also drop Healthy/AKI
+# participants with < 20 stroma cells (fixed in revision 1).
+clin <- read.csv(clin_file)
 pb_pt <- s50$pb_pt %>%
-  filter(SampleID %in% keep_samples) %>%
+  mutate(adjudicated = clin$Primary.Adjudicated.Category[
+           match(SampleID, clin$Participant.ID)])
+chk <- inner_join(pb_pt, s50$pb_fib, by = "SampleID", suffix = c("_pt", "_fib")) %>%
+  filter(!is.na(adjudicated_fib))
+stopifnot(identical(chk$adjudicated_pt, chk$adjudicated_fib))
+pb_pt <- pb_pt %>%
+  filter(!(as.character(EnrollmentCategory) == "Chronic Kidney Disease" &
+           adjudicated != "Diabetic Kidney Disease")) %>%
   mutate(EnrollmentCategory = factor(as.character(EnrollmentCategory),
                                      levels = condition_levels))
 

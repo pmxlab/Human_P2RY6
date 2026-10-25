@@ -70,6 +70,8 @@ s40_rds <- "../04-Outputs/S40_Combined_BulkRNA/S40_corrected.rds"
 s30_rds <- "../04-Outputs/S30_KPMP_BulkRNA/S30_normalised.rds"
 s50_rds <- "../04-Outputs/S50_KPMP_scRNA/S50_pseudobulk.rds"
 s60_rds <- "../04-Outputs/S60_KPMP_snRNA/S60_pseudobulk.rds"
+sc_clin <- "../../KPMP_scRNA/OpenAccessClinicalData/20251205_OpenAccessClinicalData.csv"
+sn_clin <- "../../KPMP_snRNA/6d3047c2-588f-4ad4-8eba-f4c46a1e5c14_20251205_OpenAccessClinicalData/20251205_OpenAccessClinicalData.csv"
 out_dir <- "../04-Outputs/S80_Manuscript_Figures"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -221,9 +223,13 @@ pb_fib_s52 <- s50$pb_fib %>%
            adjudicated != "Diabetic Kidney Disease")) %>%
   mutate(EnrollmentCategory = factor(as.character(EnrollmentCategory),
                                      levels = s52_levels))
-keep_samples_s52 <- unique(pb_fib_s52$SampleID)
+# PT filtered by each participant's own adjudicated category (S52 §1)
+clin_sc <- read.csv(sc_clin)
 pb_pt_s52 <- s50$pb_pt %>%
-  filter(SampleID %in% keep_samples_s52) %>%
+  mutate(adjudicated = clin_sc$Primary.Adjudicated.Category[
+           match(SampleID, clin_sc$Participant.ID)]) %>%
+  filter(!(as.character(EnrollmentCategory) == "Chronic Kidney Disease" &
+           adjudicated != "Diabetic Kidney Disease")) %>%
   mutate(EnrollmentCategory = factor(as.character(EnrollmentCategory),
                                      levels = s52_levels))
 pb_cross_s52 <- inner_join(
@@ -245,9 +251,12 @@ s62_levels <- c("Healthy Reference", "AKI", "CKD")
 pb_fib_s62 <- s60$pb_fib %>%
   filter(!(enrollment == "CKD" & adjudicated != "Diabetic Kidney Disease")) %>%
   mutate(enrollment = factor(as.character(enrollment), levels = s62_levels))
-keep_patients_s62 <- unique(pb_fib_s62$patient)
+# PT filtered by each participant's own adjudicated category (S62 §1)
+clin_sn <- read.csv(sn_clin)
 pb_pt_s62 <- s60$pb_pt %>%
-  filter(patient %in% keep_patients_s62) %>%
+  mutate(adjudicated = clin_sn$Primary.Adjudicated.Category[
+           match(patient, clin_sn$Participant.ID)]) %>%
+  filter(!(enrollment == "CKD" & adjudicated != "Diabetic Kidney Disease")) %>%
   mutate(enrollment = factor(as.character(enrollment), levels = s62_levels))
 pb_cross_s62 <- inner_join(
   pb_pt_s62  %>% select(patient, enrollment, pyrim_score),

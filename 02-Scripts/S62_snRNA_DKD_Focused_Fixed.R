@@ -18,8 +18,9 @@ library(ggpubr)
 # SETTINGS ----
 # =============================================================================
 
-s60_rds <- "../04-Outputs/S60_KPMP_snRNA/S60_pseudobulk.rds"
-out_dir <- "../04-Outputs/S62_snRNA_DKD_Focused_Fixed"
+s60_rds   <- "../04-Outputs/S60_KPMP_snRNA/S60_pseudobulk.rds"
+clin_file <- "../../KPMP_snRNA/6d3047c2-588f-4ad4-8eba-f4c46a1e5c14_20251205_OpenAccessClinicalData/20251205_OpenAccessClinicalData.csv"
+out_dir   <- "../04-Outputs/S62_snRNA_DKD_Focused_Fixed"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 condition_levels <- c("Healthy Reference", "AKI", "CKD")
@@ -192,9 +193,18 @@ keep_patients <- unique(pb_fib$patient)
 
 cat("\nPatients retained after DKD filter:", length(keep_patients), "\n")
 
-# 3) Apply same patient-level restriction to PT
+# 3) Filter PT table by each participant's own adjudicated category.
+# pb_pt has no adjudication column; patient is the KPMP Participant.ID.
+# Filtering PT by membership in the fibroblast table would also drop
+# Healthy/AKI participants with < 20 fibroblast nuclei (fixed in revision 1).
+clin <- read.csv(clin_file)
 pb_pt <- s60$pb_pt %>%
-  filter(patient %in% keep_patients) %>%
+  mutate(adjudicated = clin$Primary.Adjudicated.Category[
+           match(patient, clin$Participant.ID)])
+chk <- inner_join(pb_pt, s60$pb_fib, by = "patient", suffix = c("_pt", "_fib"))
+stopifnot(identical(chk$adjudicated_pt, chk$adjudicated_fib))
+pb_pt <- pb_pt %>%
+  filter(!(enrollment == "CKD" & adjudicated != "Diabetic Kidney Disease")) %>%
   mutate(enrollment = factor(as.character(enrollment), levels = condition_levels))
 
 # 4) Apply same patient-level restriction to subtype table

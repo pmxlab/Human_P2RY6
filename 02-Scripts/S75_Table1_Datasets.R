@@ -191,12 +191,21 @@ pb_fib_dkd <- s50$pb_fib %>%
            adjudicated != "Diabetic Kidney Disease"))
 keep_dkd_sc <- pb_fib_dkd$SampleID
 sc_st_dkd <- sc_st %>% filter(SampleID %in% keep_dkd_sc)
-sc_pt_dkd <- sc_pt %>% filter(SampleID %in% keep_dkd_sc)
+# PT: filtered by each participant's own adjudicated category (SampleID is
+# the Participant.ID for AKI/CKD), not by membership in the stroma set
+sc_pt_dkd <- sc_pt %>%
+  mutate(adjudicated = clin_sc$Primary.Adjudicated.Category[
+           match(participant, clin_sc$Participant.ID)]) %>%
+  filter(!(EnrollmentCategory == "Chronic Kidney Disease" &
+           adjudicated != "Diabetic Kidney Disease"))
 add_step("KPMP scRNA-seq", "Excluded for DKD-focused analysis: CKD without DKD (stroma)",
          n_distinct(sc_st$participant) - n_distinct(sc_st_dkd$participant),
          fmt_counts(part_cnt(anti_join(sc_st, sc_st_dkd, by = "participant")), sc_lab))
 add_step("KPMP scRNA-seq", "Analyzed, stroma, DKD-focused", n_distinct(sc_st_dkd$participant),
          fmt_counts(part_cnt(sc_st_dkd), sc_lab))
+add_step("KPMP scRNA-seq", "Excluded for DKD-focused analysis: CKD without DKD (PT)",
+         n_distinct(sc_pt$participant) - n_distinct(sc_pt_dkd$participant),
+         fmt_counts(part_cnt(anti_join(sc_pt, sc_pt_dkd, by = "participant")), sc_lab))
 add_step("KPMP scRNA-seq", "Analyzed, PT, DKD-focused", n_distinct(sc_pt_dkd$participant),
          fmt_counts(part_cnt(sc_pt_dkd), sc_lab))
 # cross-check against S50 pseudobulk tables
@@ -242,11 +251,13 @@ stopifnot(setequal(sn_pt$patient, s60$pb_pt$patient),
           setequal(sn_fb$patient, s60$pb_fib$patient))
 
 sn_fb_dkd <- sn_fb %>% filter(!(enrollment == "CKD" & adjudicated != "Diabetic Kidney Disease"))
-sn_pt_dkd <- sn_pt %>% filter(patient %in% sn_fb_dkd$patient)
+sn_pt_dkd <- sn_pt %>% filter(!(enrollment == "CKD" & adjudicated != "Diabetic Kidney Disease"))
 add_step("KPMP snRNA-seq", "Excluded for DKD-focused analysis: CKD without DKD (fibroblast)",
          nrow(sn_fb) - nrow(sn_fb_dkd), fmt_counts(sn_cnt(anti_join(sn_fb, sn_fb_dkd, by = "patient")), sn_lab))
 add_step("KPMP snRNA-seq", "Analyzed, fibroblast, DKD-focused", nrow(sn_fb_dkd),
          fmt_counts(sn_cnt(sn_fb_dkd), sn_lab))
+add_step("KPMP snRNA-seq", "Excluded for DKD-focused analysis: CKD without DKD (PT)",
+         nrow(sn_pt) - nrow(sn_pt_dkd), fmt_counts(sn_cnt(anti_join(sn_pt, sn_pt_dkd, by = "patient")), sn_lab))
 add_step("KPMP snRNA-seq", "Analyzed, PT, DKD-focused", nrow(sn_pt_dkd),
          fmt_counts(sn_cnt(sn_pt_dkd), sn_lab))
 

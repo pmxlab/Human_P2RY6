@@ -1,0 +1,12 @@
+# Manuscript drafts and reviews (kept outside version control)
+07-Manuscript/
+
+# Local tooling
+CLAUDE.md
+.claude/
+
+# RStudio / R session files
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata

@@ -1,0 +1,57 @@
+"Panel","Dataset","Analysis","Compartment","Normal/Healthy.figure","Early DKD.figure","Advanced DKD.figure","AKI.figure","CKD.figure","Total.figure","Rendered","Total.table","match"
+"1a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"1b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
+"1c","KPMP scRNA-seq","All conditions","PT",33,0,0,20,49,102,102,102,TRUE
+"1d","KPMP scRNA-seq","DKD-focused","PT",32,0,0,15,15,62,62,62,TRUE
+"1e","KPMP snRNA-seq","All conditions","PT",38,0,0,33,71,142,142,142,TRUE
+"1f","KPMP snRNA-seq","DKD-focused","PT",35,0,0,31,26,92,92,92,TRUE
+"2a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"2b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
+"2c","KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,92,92,TRUE
+"2d","KPMP scRNA-seq","DKD-focused","Stroma",36,0,0,15,15,66,66,66,TRUE
+"2e","KPMP snRNA-seq","All conditions","Fibroblasts",36,0,0,31,63,130,130,130,TRUE
+"2f","KPMP snRNA-seq","DKD-focused","Fibroblasts",36,0,0,31,27,94,94,94,TRUE
+"3a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"3b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
+"3c","KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,92,92,TRUE
+"3d","KPMP scRNA-seq","DKD-focused","Stroma",36,0,0,15,15,66,66,66,TRUE
+"3e","KPMP snRNA-seq","All conditions","Fibroblasts",36,0,0,31,63,130,130,130,TRUE
+"3f","KPMP snRNA-seq","DKD-focused","Fibroblasts",36,0,0,31,27,94,94,94,TRUE
+"4a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"4b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
+"4c","KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,92,92,TRUE
+"4d","KPMP scRNA-seq","DKD-focused","Stroma",36,0,0,15,15,66,66,66,TRUE
+"4e","KPMP snRNA-seq","All conditions","Fibroblasts",36,0,0,31,63,130,130,130,TRUE
+"4f","KPMP snRNA-seq","DKD-focused","Fibroblasts",36,0,0,31,27,94,94,94,TRUE
+"5a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"5b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
+"5c","KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,92,92,TRUE
+"5d","KPMP scRNA-seq","DKD-focused","Stroma",36,0,0,15,15,66,66,66,TRUE
+"5e","KPMP snRNA-seq","All conditions","Fibroblasts",36,0,0,31,63,130,130,130,TRUE
+"5f","KPMP snRNA-seq","DKD-focused","Fibroblasts",36,0,0,31,27,94,94,94,TRUE
+"6a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"6b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
+"6c","KPMP scRNA-seq","All conditions","PT and stroma (matched)",32,0,0,15,39,86,86,86,TRUE
+"6d","KPMP scRNA-seq","DKD-focused","PT and stroma (matched)",32,0,0,15,15,62,62,62,TRUE
+"6e","KPMP snRNA-seq","All conditions","PT and fibroblasts (matched)",35,0,0,31,62,128,128,128,TRUE
+"6f","KPMP snRNA-seq","DKD-focused","PT and fibroblasts (matched)",35,0,0,31,26,92,92,92,TRUE
+"S1a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"S1b","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"S2a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"S2b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
+"S2c","KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,92,92,TRUE
+"S2d","KPMP scRNA-seq","DKD-focused","Stroma",36,0,0,15,15,66,66,66,TRUE
+"S2e","KPMP snRNA-seq","All conditions","Fibroblasts",36,0,0,31,63,130,130,130,TRUE
+"S2f","KPMP snRNA-seq","DKD-focused","Fibroblasts",36,0,0,31,27,94,94,94,TRUE
+"S3a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"S3b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
+"S3c","KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,92,92,TRUE
+"S3d","KPMP scRNA-seq","DKD-focused","Stroma",36,0,0,15,15,66,66,66,TRUE
+"S3e","KPMP snRNA-seq","All conditions","Fibroblasts",36,0,0,31,63,130,130,130,TRUE
+"S3f","KPMP snRNA-seq","DKD-focused","Fibroblasts",36,0,0,31,27,94,94,94,TRUE
+"S4a","Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,60,60,TRUE
+"S4b","Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,54,54,TRUE
+"S4c","KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,92,92,TRUE
+"S4d","KPMP scRNA-seq","DKD-focused","Stroma",36,0,0,15,15,66,66,66,TRUE
+"S4e","KPMP snRNA-seq","All conditions","Fibroblasts",36,0,0,31,63,130,130,130,TRUE
+"S4f","KPMP snRNA-seq","DKD-focused","Fibroblasts",36,0,0,31,27,94,94,94,TRUE

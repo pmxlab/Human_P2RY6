@@ -1,0 +1,81 @@
+"Panel","group1","group2","p","p_BH","recomputed","unadjusted","drawn","match"
+"1a","Normal","Early_DKD",0.002797,0.01119,"*","**","*",TRUE
+"1a","Normal","Advanced_DKD",0.5043,0.647,"ns","ns","ns",TRUE
+"1a","Normal","AKI",0.0159,0.03179,"*","*","*",TRUE
+"1a","Normal","CKD",0.647,0.647,"ns","ns","ns",TRUE
+"1b","Normal","Early_DKD",0.002797,0.01119,"*","**","*",TRUE
+"1b","Normal","Advanced_DKD",0.5043,0.5043,"ns","ns","ns",TRUE
+"1b","Normal","AKI",0.0159,0.03179,"*","*","*",TRUE
+"1b","Normal","CKD",0.03112,0.04149,"*","*","*",TRUE
+"1c","Healthy Reference Tissue","Acute Kidney Injury",8.629e-08,1.726e-07,"****","****","****",TRUE
+"1c","Healthy Reference Tissue","Chronic Kidney Disease",5.089e-05,5.089e-05,"****","****","****",TRUE
+"1d","Healthy Reference Tissue","Acute Kidney Injury",1.107e-05,2.214e-05,"****","****","****",TRUE
+"1d","Healthy Reference Tissue","Chronic Kidney Disease",2.803e-05,2.803e-05,"****","****","****",TRUE
+"1e","Healthy Reference","AKI",0.0004423,0.0008847,"***","***","***",TRUE
+"1e","Healthy Reference","CKD",0.259,0.259,"ns","ns","ns",TRUE
+"1f","Healthy Reference","AKI",0.0009699,0.00194,"**","***","**",TRUE
+"1f","Healthy Reference","CKD",0.1282,0.1282,"ns","ns","ns",TRUE
+"2a","Normal","Early_DKD",0.9546,0.9546,"ns","ns","ns",TRUE
+"2a","Normal","Advanced_DKD",0.0009591,0.003286,"**","***","**",TRUE
+"2a","Normal","AKI",0.001643,0.003286,"**","**","**",TRUE
+"2a","Normal","CKD",0.05135,0.06847,"ns","ns","ns",TRUE
+"2b","Normal","Early_DKD",0.9546,0.9546,"ns","ns","ns",TRUE
+"2b","Normal","Advanced_DKD",0.0009591,0.003286,"**","***","**",TRUE
+"2b","Normal","AKI",0.001643,0.003286,"**","**","**",TRUE
+"2b","Normal","CKD",0.04178,0.05571,"ns","*","ns",TRUE
+"2c","Healthy Reference Tissue","Acute Kidney Injury",0.7807,0.7807,"ns","ns","ns",TRUE
+"2c","Healthy Reference Tissue","Chronic Kidney Disease",0.268,0.536,"ns","ns","ns",TRUE
+"2d","Healthy Reference Tissue","Acute Kidney Injury",0.7807,0.9903,"ns","ns","ns",TRUE
+"2d","Healthy Reference Tissue","Chronic Kidney Disease",0.9903,0.9903,"ns","ns","ns",TRUE
+"2e","Healthy Reference","AKI",0.001868,0.003736,"**","**","**",TRUE
+"2e","Healthy Reference","CKD",0.004141,0.004141,"**","**","**",TRUE
+"2f","Healthy Reference","AKI",0.001868,0.003736,"**","**","**",TRUE
+"2f","Healthy Reference","CKD",0.02994,0.02994,"*","*","*",TRUE
+"3a","Normal","Early_DKD",0.1135,0.1135,"ns","ns","ns",TRUE
+"3a","Normal","Advanced_DKD",0.0003203,0.001281,"**","***","**",TRUE
+"3a","Normal","AKI",0.001155,0.001925,"**","**","**",TRUE
+"3a","Normal","CKD",0.001443,0.001925,"**","**","**",TRUE
+"3b","Normal","Early_DKD",0.1135,0.1135,"ns","ns","ns",TRUE
+"3b","Normal","Advanced_DKD",0.0003203,0.001281,"**","***","**",TRUE
+"3b","Normal","AKI",0.001155,0.00231,"**","**","**",TRUE
+"3b","Normal","CKD",0.0229,0.03054,"*","*","*",TRUE
+"3c","Healthy Reference Tissue","Acute Kidney Injury",9.593e-07,9.593e-07,"****","****","****",TRUE
+"3c","Healthy Reference Tissue","Chronic Kidney Disease",3.991e-08,7.982e-08,"****","****","****",TRUE
+"3d","Healthy Reference Tissue","Acute Kidney Injury",9.593e-07,1.919e-06,"****","****","****",TRUE
+"3d","Healthy Reference Tissue","Chronic Kidney Disease",5.178e-06,5.178e-06,"****","****","****",TRUE
+"3e","Healthy Reference","AKI",0.02104,0.04208,"*","*","*",TRUE
+"3e","Healthy Reference","CKD",0.05908,0.05908,"ns","ns","ns",TRUE
+"3f","Healthy Reference","AKI",0.02104,0.04208,"*","*","*",TRUE
+"3f","Healthy Reference","CKD",0.2903,0.2903,"ns","ns","ns",TRUE
+"4a","Normal","Early_DKD",0.9546,0.9546,"ns","ns","ns",TRUE
+"4a","Normal","Advanced_DKD",0.000506,0.00111,"**","***","**",TRUE
+"4a","Normal","AKI",0.03813,0.05084,"ns","*","ns",TRUE
+"4a","Normal","CKD",0.0005549,0.00111,"**","***","**",TRUE
+"4b","Normal","Early_DKD",0.9546,0.9546,"ns","ns","ns",TRUE
+"4b","Normal","Advanced_DKD",0.000506,0.001399,"**","***","**",TRUE
+"4b","Normal","AKI",0.03813,0.05084,"ns","*","ns",TRUE
+"4b","Normal","CKD",0.0006993,0.001399,"**","***","**",TRUE
+"4c","Healthy Reference Tissue","Acute Kidney Injury",0.272,0.544,"ns","ns","ns",TRUE
+"4c","Healthy Reference Tissue","Chronic Kidney Disease",0.7879,0.7879,"ns","ns","ns",TRUE
+"4d","Healthy Reference Tissue","Acute Kidney Injury",0.272,0.544,"ns","ns","ns",TRUE
+"4d","Healthy Reference Tissue","Chronic Kidney Disease",0.5877,0.5877,"ns","ns","ns",TRUE
+"4e","Healthy Reference","AKI",7.987e-07,1.597e-06,"****","****","****",TRUE
+"4e","Healthy Reference","CKD",3.533e-06,3.533e-06,"****","****","****",TRUE
+"4f","Healthy Reference","AKI",7.987e-07,1.597e-06,"****","****","****",TRUE
+"4f","Healthy Reference","CKD",0.0003872,0.0003872,"***","***","***",TRUE
+"5a","Normal","Early_DKD",0.7756,0.7756,"ns","ns","ns",TRUE
+"5a","Normal","Advanced_DKD",6.291e-06,1.258e-05,"****","****","****",TRUE
+"5a","Normal","AKI",2.382e-05,3.175e-05,"****","****","****",TRUE
+"5a","Normal","CKD",4.021e-06,1.258e-05,"****","****","****",TRUE
+"5b","Normal","Early_DKD",0.7756,0.7756,"ns","ns","ns",TRUE
+"5b","Normal","Advanced_DKD",6.291e-06,2.516e-05,"****","****","****",TRUE
+"5b","Normal","AKI",2.382e-05,4.763e-05,"****","****","****",TRUE
+"5b","Normal","CKD",0.0001748,0.0002331,"***","***","***",TRUE
+"5c","Healthy Reference Tissue","Acute Kidney Injury",6.276e-05,6.276e-05,"****","****","****",TRUE
+"5c","Healthy Reference Tissue","Chronic Kidney Disease",1.146e-05,2.293e-05,"****","****","****",TRUE
+"5d","Healthy Reference Tissue","Acute Kidney Injury",6.276e-05,0.0001255,"***","****","***",TRUE
+"5d","Healthy Reference Tissue","Chronic Kidney Disease",0.0007608,0.0007608,"***","***","***",TRUE
+"5e","Healthy Reference","AKI",1.018e-07,2.036e-07,"****","****","****",TRUE
+"5e","Healthy Reference","CKD",0.0004611,0.0004611,"***","***","***",TRUE
+"5f","Healthy Reference","AKI",1.018e-07,2.036e-07,"****","****","****",TRUE
+"5f","Healthy Reference","CKD",0.001499,0.001499,"**","**","**",TRUE

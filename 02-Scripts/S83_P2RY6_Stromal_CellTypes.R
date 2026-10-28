@@ -3,18 +3,18 @@
 # Consistency check of P2RY6 between KPMP scRNA-seq and snRNA-seq for the same
 # stromal cell types (reviewer comment R1.04).
 #
-# The scRNA-seq "stroma cells" class (Figure 2c) is ~82% VSMC/P and ~18%
+# The scRNA-seq "stroma cells" class (Figure 2b) is ~82% VSMC/P and ~18%
 # fibroblasts (subtypes MYOF and pvFIB only); the snRNA-seq fibroblast subclass
-# (Figure 2e) contains all fibroblast subtypes. Cell sets (figure rows:
+# (Figure 2d) contains all fibroblast subtypes. Cell sets (figure rows:
 # scRNA-seq, snRNA-seq; columns: stroma, VSMC/P, fibroblasts):
-#   (1) scRNA-seq stroma as in Figure 2c (checked against S50)
+#   (1) scRNA-seq stroma as in Figure 2b (checked against S50)
 #   (2) scRNA-seq VSMC/P only (subclass.level1 == "VSMC/P")
 #   (3) scRNA-seq fibroblasts only (subclass.level1 == "FIB")
 #   (4) snRNA-seq stroma with scRNA-seq composition: per participant,
 #       weighted mean of the FIB and VSM/P pseudobulk values with the
 #       scRNA-seq stroma weights (FIB ~18%, VSMC/P ~82%)
 #   (5) snRNA-seq VSM/P only  (subclass.l1 == "VSM/P")
-#   (6) snRNA-seq fibroblasts as in Figure 2e (checked against S60)
+#   (6) snRNA-seq fibroblasts as in Figure 2d (checked against S60)
 # Per participant (>= 20 cells/nuclei): mean log-normalized P2RY6 and % of
 # P2RY6-positive cells/nuclei; the table also gives the number of cells/nuclei
 # per participant before the filter. All conditions; Wilcoxon rank-sum test vs
@@ -58,12 +58,12 @@ sn_lab    <- c("Healthy Reference" = "Healthy", "AKI" = "AKI", "CKD" = "CKD")
 group_colors <- c(Healthy = "#2166ac", AKI = "#e07b39", CKD = "#756bb1")
 
 set_levels <- c(
-  "scRNA-seq stroma (Figure 2c)",
+  "scRNA-seq stroma (Figure 2b)",
   "scRNA-seq VSMC/P",
   "scRNA-seq fibroblasts",
   "snRNA-seq stroma, scRNA-seq composition",
   "snRNA-seq VSM/P",
-  "snRNA-seq fibroblasts (Figure 2e)"
+  "snRNA-seq fibroblasts (Figure 2d)"
 )
 
 # Only raw counts and cell metadata are loaded (lower memory); the subsets are
@@ -155,7 +155,7 @@ rm(obj); gc()
 # 3. REFERENCE CHECK AND COMPOSITION-MATCHED snRNA-seq STROMA ----
 # ============================================================================#
 
-# the stroma (scRNA-seq) and fibroblast (snRNA-seq) sets must reproduce Figure 2c/2e
+# the stroma (scRNA-seq) and fibroblast (snRNA-seq) sets must reproduce Figure 2b/2d
 s50 <- readRDS(s50_rds)
 s60 <- readRDS(s60_rds)
 chk <- function(pb, ref, id_col) {
@@ -292,7 +292,7 @@ share  <- function(sel, what) {
   by_class %>% filter(sel(class)) %>% group_by(dataset) %>% summarise(v = sum(.data[[what]])) %>%
     left_join(totals, by = "dataset") %>% mutate(pct = 100 * v / .data[[what]]) %>% pull(pct)
 }
-n_fib <- pb_all %>% filter(set %in% c("scRNA-seq fibroblasts", "snRNA-seq fibroblasts (Figure 2e)")) %>%
+n_fib <- pb_all %>% filter(set %in% c("scRNA-seq fibroblasts", "snRNA-seq fibroblasts (Figure 2d)")) %>%
   group_by(set) %>% summarise(n = sum(n_cells)) %>% pull(n)
 is_epi <- function(cl) grepl("epithelial", cl)
 is_str <- function(cl) cl == "stroma cells"

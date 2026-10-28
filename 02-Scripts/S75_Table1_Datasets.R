@@ -322,8 +322,10 @@ kb_dkd    <- !(kb$`Enrollment Category` == "CKD" &
                kb$`Primary Adjudicated Category` != "Diabetic Kidney Disease")
 comb_cond <- c(fan_cond, kb_cond)
 comb_dkd_cond <- c(fan_cond, kb_cond[kb_dkd])
-bulk_all_fig <- "1a, 2a, 3a, 4a, 5a, 6a, S1a, S1b, S2a, S3a, S4a"
-bulk_dkd_fig <- "1b, 2b, 3b, 4b, 5b, 6b, S2b, S3b, S4b"
+# Revision 1: panels (a) show the Fan DKD cohort only; the KPMP bulk data and
+# the combined Fan + KPMP set are no longer analyzed (cohort and diagnosis
+# confounded; see S43).
+fan_fig <- "1a, 2a, 3a, 4a, 5a, 6a, S1a, S2a, S3a"
 
 # . scRNA-seq: fibroblasts are not analyzed separately (too few cells) ----
 sc_fib_n <- sc %>%
@@ -355,43 +357,44 @@ sn_u <- function(d) relabel(uniq(d, "patient", "enrollment"), sn_map)
 
 analyzed <- bind_rows(
   count_row("Fan DKD bulk", "All conditions", "Whole tissue", relabel(fan_cond, bulk_map),
-            "none (input to combined bulk)", "no"),
+            fan_fig),
   count_row("KPMP bulk", "All conditions", "Whole tissue", relabel(kb_cond, bulk_map),
-            "none (input to combined bulk)", "no", note = get("KPMP bulk", "Analyzed")$note),
+            "none", "no", note = paste(get("KPMP bulk", "Analyzed")$note,
+              "| not analyzed: no healthy samples; AKI/CKD cannot be compared with Normal of another cohort")),
   count_row("Combined bulk", "All conditions", "Whole tissue", relabel(comb_cond, bulk_map),
-            bulk_all_fig),
+            "none", "no", note = "not analyzed: cohort and diagnosis confounded (S43)"),
   count_row("Combined bulk", "DKD-focused", "Whole tissue", relabel(comb_dkd_cond, bulk_map),
-            bulk_dkd_fig),
-  count_row("KPMP scRNA-seq", "All conditions", "PT", sc_u(sc_pt), "1c"),
+            "none", "no", note = "not analyzed: cohort and diagnosis confounded (S43)"),
+  count_row("KPMP scRNA-seq", "All conditions", "PT", sc_u(sc_pt), "1b"),
   count_row("KPMP scRNA-seq", "All conditions", "Stroma", sc_u(sc_st),
-            "2c, 3c, 4c, 5c, S2c, S3c, S4c", note = paste("stroma class:", sc_stroma_txt)),
+            "2b, 3b, 4b, 5b, S1b, S2b, S3b", note = paste("stroma class:", sc_stroma_txt)),
   count_row("KPMP scRNA-seq", "All conditions", "Fibroblasts",
             relabel(sc_fib_n$EnrollmentCategory, sc_map), "none", "no",
             note = sprintf("not analyzed: fewer than %d fibroblasts in most participants", min_cells)),
   count_row("KPMP scRNA-seq", "All conditions", "PT and stroma (matched)",
-            sc_u(sc_pt %>% filter(participant %in% sc_cross)), "6c"),
-  count_row("KPMP scRNA-seq", "DKD-focused", "PT", sc_u(sc_pt_dkd), "1d"),
+            sc_u(sc_pt %>% filter(participant %in% sc_cross)), "6b"),
+  count_row("KPMP scRNA-seq", "DKD-focused", "PT", sc_u(sc_pt_dkd), "1c"),
   count_row("KPMP scRNA-seq", "DKD-focused", "Stroma", sc_u(sc_st_dkd),
-            "2d, 3d, 4d, 5d, S2d, S3d, S4d"),
+            "2c, 3c, 4c, 5c, S1c, S2c, S3c"),
   count_row("KPMP scRNA-seq", "DKD-focused", "Fibroblasts",
             relabel(sc_fib_dkd$EnrollmentCategory, sc_map), "none", "no",
             note = sprintf("not analyzed: fewer than %d fibroblasts in most participants", min_cells)),
   count_row("KPMP scRNA-seq", "DKD-focused", "PT and stroma (matched)",
-            sc_u(sc_pt_dkd %>% filter(participant %in% sc_cross_dkd)), "6d"),
-  count_row("KPMP snRNA-seq", "All conditions", "PT", sn_u(sn_pt), "1e"),
+            sc_u(sc_pt_dkd %>% filter(participant %in% sc_cross_dkd)), "6c"),
+  count_row("KPMP snRNA-seq", "All conditions", "PT", sn_u(sn_pt), "1d"),
   count_row("KPMP snRNA-seq", "All conditions", "Stroma", sn_u(sn_stroma), "none", "no",
             note = "not analyzed: fibroblast subclass analyzed instead; stroma = FIB + VSM/P"),
   count_row("KPMP snRNA-seq", "All conditions", "Fibroblasts", sn_u(sn_fb),
-            "2e, 3e, 4e, 5e, S2e, S3e, S4e"),
+            "2d, 3d, 4d, 5d, S1d, S2d, S3d"),
   count_row("KPMP snRNA-seq", "All conditions", "PT and fibroblasts (matched)",
-            sn_u(sn_pt %>% filter(patient %in% sn_cross)), "6e"),
-  count_row("KPMP snRNA-seq", "DKD-focused", "PT", sn_u(sn_pt_dkd), "1f"),
+            sn_u(sn_pt %>% filter(patient %in% sn_cross)), "6d"),
+  count_row("KPMP snRNA-seq", "DKD-focused", "PT", sn_u(sn_pt_dkd), "1e"),
   count_row("KPMP snRNA-seq", "DKD-focused", "Stroma", sn_u(sn_stroma_dkd), "none", "no",
             note = "not analyzed: fibroblast subclass analyzed instead; stroma = FIB + VSM/P"),
   count_row("KPMP snRNA-seq", "DKD-focused", "Fibroblasts", sn_u(sn_fb_dkd),
-            "2f, 3f, 4f, 5f, S2f, S3f, S4f"),
+            "2e, 3e, 4e, 5e, S1e, S2e, S3e"),
   count_row("KPMP snRNA-seq", "DKD-focused", "PT and fibroblasts (matched)",
-            sn_u(sn_pt_dkd %>% filter(patient %in% sn_cross_dkd)), "6f")
+            sn_u(sn_pt_dkd %>% filter(patient %in% sn_cross_dkd)), "6e")
 )
 # consistency with the step table
 stopifnot(
@@ -467,24 +470,18 @@ proc <- c(
 )
 
 orig <- function(ds, st) { o <- get(ds, st); sprintf("%d (%s)", o$n_participants, o$by_condition) }
+# Revision 1: KPMP bulk and the combined bulk set are not analyzed (S43) and
+# are not listed.
 table1 <- data.frame(
-  Dataset  = c("Fan DKD (GSE142025)", "KPMP bulk RNA-seq", "Combined bulk (Fan + KPMP)",
-               "KPMP scRNA-seq (incl. Lake 2023)", "KPMP snRNA-seq"),
-  Platform = c("Bulk RNA-seq", "Bulk RNA-seq", "Bulk RNA-seq", "scRNA-seq", "snRNA-seq"),
+  Dataset  = c("Fan DKD (GSE142025)", "KPMP scRNA-seq (incl. Lake 2023)", "KPMP snRNA-seq"),
+  Platform = c("Bulk RNA-seq", "scRNA-seq", "snRNA-seq"),
   `Original participants` = c(orig("Fan DKD bulk", "Deposited in GEO"),
-                              orig("KPMP bulk", "Participants with a count file"),
-                              orig("Combined bulk", "Analyzed, all conditions"),
                               orig("KPMP scRNA-seq", "Participants in the KPMP object"),
                               orig("KPMP snRNA-seq", "Participants in the KPMP object")),
-  Exclusions = c(excl("Fan DKD bulk"), excl("KPMP bulk"),
-                 sprintf("All conditions: none; DKD-focused: CKD without DKD (n=%d)",
-                         get("Combined bulk", "Excluded for DKD-focused analysis: CKD without DKD")$n_participants),
-                 excl("KPMP scRNA-seq"), excl("KPMP snRNA-seq")),
-  `Analyzed participants` = c(analyzed_cell("Fan DKD bulk"), analyzed_cell("KPMP bulk"),
-                              analyzed_cell("Combined bulk"), analyzed_cell("KPMP scRNA-seq"),
+  Exclusions = c(excl("Fan DKD bulk"), excl("KPMP scRNA-seq"), excl("KPMP snRNA-seq")),
+  `Analyzed participants` = c(analyzed_cell("Fan DKD bulk"), analyzed_cell("KPMP scRNA-seq"),
                               analyzed_cell("KPMP snRNA-seq")),
-  Processing = unname(proc[c("Fan DKD bulk", "KPMP bulk", "Combined bulk",
-                             "KPMP scRNA-seq", "KPMP snRNA-seq")]),
+  Processing = unname(proc[c("Fan DKD bulk", "KPMP scRNA-seq", "KPMP snRNA-seq")]),
   check.names = FALSE, stringsAsFactors = FALSE)
 table1$Exclusions <- gsub("; ", ";\n", table1$Exclusions)
 

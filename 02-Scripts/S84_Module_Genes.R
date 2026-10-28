@@ -13,7 +13,7 @@
 #
 # Compartments as in the module-score panels: pyrimidine in proximal tubule
 # (PT); calcium and ECM in stroma (scRNA-seq) and fibroblasts (snRNA-seq).
-# Single-cell data: all conditions (as panels c and e of Figures 1, 3, 5).
+# Single-cell data: all conditions (as panels b and d of Figures 1, 3, 5).
 #
 # Data:
 #   S20_normalised.rds  Fan: log2 quantile-normalized values (Fan et al.)
@@ -29,12 +29,12 @@
 # Leave-one-gene-out (R1.09): each score recomputed without one gene at a
 #   time (unweighted mean of the remaining genes, as the full score) and
 #   re-tested with the comparisons of the score panels (Figures 1, 3, 5):
-#   Fan (b), scRNA-seq (c, d) and snRNA-seq (e, f), i.e. all conditions and
+#   Fan (a), scRNA-seq (b, c) and snRNA-seq (d, e), i.e. all conditions and
 #   DKD-focused (CKD restricted to adjudicated DKD, filters as in S80).
 #   The full scores are checked against the stars drawn by S80.
 #
 # Outputs: 04-Outputs/S84_Module_Genes/
-#   Fig_genes_<module>.png/.pdf, Figure_S5a-c.png (Supplementary Figure S5),
+#   Fig_genes_<module>.png/.pdf, Figure_S4a-c.png (Supplementary Figure S4),
 #   Table_gene_tests.csv/.md,
 #   Table_LOGO_all.csv, Table_LOGO_summary.csv/.md
 # =========================================================================== #
@@ -265,10 +265,10 @@ for (m in names(modules)) {
          width = 8, height = 11, dpi = dpi, bg = "white")
   ggsave(file.path(out_dir, paste0("Fig_genes_", m, ".pdf")), p,
          width = 8, height = 11, device = cairo_pdf)
-  # Supplementary Figure S5 (a) pyrimidine, (b) calcium, (c) ECM
+  # Supplementary Figure S4 (a) pyrimidine, (b) calcium, (c) ECM
   ps5 <- p + labs(tag = sprintf("(%s)", letters[match(m, names(modules))])) +
     theme(plot.tag = element_text(face = "bold", size = 16))
-  ggsave(file.path(out_dir, sprintf("Figure_S5%s.png", letters[match(m, names(modules))])),
+  ggsave(file.path(out_dir, sprintf("Figure_S4%s.png", letters[match(m, names(modules))])),
          ps5, width = 8, height = 11, dpi = dpi, bg = "white")
 }
 
@@ -336,7 +336,7 @@ logo <- logo_data %>%
   arrange(module, dataset, analysis, factor(group2, levels = condition_levels))
 
 # . 4c. Check: full scores reproduce the stars of the S80 score panels ----
-# S80 panel letters: (c) scRNA all, (d) scRNA DKD, (e) snRNA all, (f) snRNA DKD
+# S80 panel letters: (b) scRNA all, (c) scRNA DKD, (d) snRNA all, (e) snRNA DKD
 fig_no <- c(pyrimidine = 1, calcium = 3, ecm = 5)
 s80 <- read.csv(s80_stars) %>%
   mutate(group2 = recode(group2, "Acute Kidney Injury" = "AKI",
@@ -345,8 +345,8 @@ chk <- logo %>%
   filter(left_out == "none (full score)", dataset != "fan") %>%
   mutate(Panel = paste0(fig_no[as.character(module)],
                         ifelse(dataset == "sc",
-                               ifelse(analysis == "All conditions", "c", "d"),
-                               ifelse(analysis == "All conditions", "e", "f")))) %>%
+                               ifelse(analysis == "All conditions", "b", "c"),
+                               ifelse(analysis == "All conditions", "d", "e")))) %>%
   inner_join(s80 %>% select(Panel, group2, drawn), by = c("Panel", "group2"))
 stopifnot(nrow(chk) == 24, all(chk$signif == chk$drawn))
 cat("Full scores reproduce the S80 stars of", nrow(chk), "single-cell comparisons.\n")

@@ -6,35 +6,38 @@
 # Replaces the manually collated slides in
 #   07-Manuscript/Submission 2 - MDPI-LIFE/Figures.pptx
 #
-# Panel -> source mapping (verified against the images embedded in the pptx):
+# Panel -> source mapping (Revision 1):
 #
-#   Figure     (a)        (b)        (c)        (d)        (e)        (f)
-#   ---------  ---------  ---------  ---------  ---------  ---------  ---------
-#   Figure 1   S40        S42        S50        S52        S60        S62      Pyrimidine score
-#   Figure 2   S40        S42        S50        S52        S60        S62      P2RY6
-#   Figure 3   S40        S42        S50        S52        S60        S62      Calcium score
-#   Figure 4   S40        S42        S50        S52        S60        S62      PDGFRB
-#   Figure 5   S40        S42        S50        S52        S60        S62      ECM score
-#   Figure 6   S41        S42        S50        S52        S60        S62      Pyrimidine vs ECM
-#   Figure S1  S40 (pre-ComBat PCA)  S40 (post-ComBat PCA)                    Batch correction QC
-#   Figure S2  S40        S42        S51        S52        S60        S62      P2RY6 vs Calcium
-#   Figure S3  S40        S42        S51        S52        S60        S62      P2RY6 vs PDGFRB (**)
-#   Figure S4  S40        S42        S51        S52        S60        S62      P2RY6 vs ECM (*)
+#   Figure     top left  (a)        (b)        (c)        (d)        (e)
+#   ---------  --------  ---------  ---------  ---------  ---------  ---------
+#   Figure 1   empty     S20        S50        S52        S60        S62      Pyrimidine score
+#   Figure 2   empty     S20        S50        S52        S60        S62      P2RY6
+#   Figure 3   empty     S20        S50        S52        S60        S62      Calcium score
+#   Figure 4   empty     S20        S50        S52        S60        S62      PDGFRB
+#   Figure 5   empty     S20        S50        S52        S60        S62      ECM score
+#   Figure 6   empty     S20        S50        S52        S60        S62      Pyrimidine vs ECM
+#   Figure S1  empty     S20        S51        S52        S60        S62      P2RY6 vs Calcium
+#   Figure S2  empty     S20        S51        S52        S60        S62      P2RY6 vs PDGFRB (**)
+#   Figure S3  empty     S20        S51        S52        S60        S62      P2RY6 vs ECM (*)
 #
-#   Figure 2c shows mean P2RY6 expression like the other P2RY6 panels
+#   (a) Fan DKD bulk RNA-seq only (Normal, Early DKD, Advanced DKD; values
+#       of S20 without batch correction), placed top right; the top-left
+#       position is left empty. Revision 1 (R1.10, R2.02, R2.03): the KPMP
+#       bulk data and the ComBat-corrected combined Fan + KPMP panels
+#       (S40-S42) and the PCA figure (former Figure S1) were removed, because
+#       the AKI/CKD profiles of KPMP cannot be compared reliably with the
+#       Normal samples of another cohort (sensitivity analysis: S43).
+#   Figure 2b shows mean P2RY6 expression like the other P2RY6 panels
 #       (Figures.pptx showed % P2RY6+ stroma cells; changed in the v5 revision).
 #   (*) In Figures.pptx the slide "Suppl. Figure 3" is an exact copy of
 #       "Suppl. Figure 2". The manuscript text describes this figure as the
 #       P2RY6 vs ECM correlations, which are assembled here following the
 #       layout of the other correlation figures.
-#   (**) Axes swapped relative to S40-S62 (P2RY6 on x, PDGFRB on y) so that
+#   (**) Axes swapped relative to S50-S62 (P2RY6 on x, PDGFRB on y) so that
 #       P2RY6 is on the x-axis in all supplementary correlation figures.
-#   Supplementary numbering follows the order of citation in the manuscript:
-#       S1 (PCA) is cited in the Methods, S2-S4 in the Results.
 #
-# Inputs (no heavy re-computation; Seurat objects and ComBat are not needed):
-#   S20_normalised.rds, S30_normalised.rds, S40_corrected.rds,
-#   S50_pseudobulk.rds, S60_pseudobulk.rds
+# Inputs (no heavy re-computation; Seurat objects are not needed):
+#   S20_normalised.rds, S50_pseudobulk.rds, S60_pseudobulk.rds
 #
 # Differences to the panels saved by the source scripts:
 #   - significance stars show Benjamini-Hochberg-adjusted p-values (two-sided
@@ -66,8 +69,6 @@ set_null_device("cairo")
 # ============================================================================#
 
 s20_rds <- "../04-Outputs/S20_FanDKD_BulkRNA/S20_normalised.rds"
-s40_rds <- "../04-Outputs/S40_Combined_BulkRNA/S40_corrected.rds"
-s30_rds <- "../04-Outputs/S30_KPMP_BulkRNA/S30_normalised.rds"
 s50_rds <- "../04-Outputs/S50_KPMP_scRNA/S50_pseudobulk.rds"
 s60_rds <- "../04-Outputs/S60_KPMP_snRNA/S60_pseudobulk.rds"
 sc_clin <- "../../KPMP_scRNA/OpenAccessClinicalData/20251205_OpenAccessClinicalData.csv"
@@ -166,11 +167,14 @@ tidy_panel <- function(p, subtitle_width = 52) {
             plot.margin = margin(t = 26, r = 8, b = 6, l = 8))
 }
 
-# Assemble a 3 x 2 figure, label panels (a)-(f) and save PNG + PDF
+# Assemble a 3 x 2 figure, label panels (a)-(e) and save PNG + PDF;
+# NULL entries are empty positions (no panel label).
 save_figure <- function(panels, name, width, heights, ncol = 2) {
-  panels <- lapply(panels, tidy_panel)
+  empty  <- vapply(panels, is.null, logical(1))
+  labels <- ifelse(empty, "", sprintf("(%s)", letters[pmax(cumsum(!empty), 1)]))
+  panels <- lapply(panels, function(p) if (is.null(p)) NULL else tidy_panel(p))
   fig <- plot_grid(plotlist = panels, ncol = ncol,
-                   labels = sprintf("(%s)", letters[seq_along(panels)]),
+                   labels = labels,
                    label_size = 18, label_fontface = "bold",
                    rel_heights = heights)
   fig <- ggdraw(fig) + theme(plot.background = element_rect(fill = "white", colour = NA))
@@ -193,22 +197,13 @@ save_figure <- function(panels, name, width, heights, ncol = 2) {
 # DATA ----
 # ============================================================================#
 
-# . Bulk: S40 (combined, all conditions) ----
-s40      <- readRDS(s40_rds)
-meta_s40 <- s40$meta   # sample_id, condition, cohort + module scores (S40 §5)
-
-# . Bulk: S41 (KPMP points coloured by adjudicated category) ----
-s30      <- readRDS(s30_rds)
-adj_info <- s30$meta %>% select(sample_id, primary_adjudicated_category)
-meta_s41 <- left_join(meta_s40, adj_info, by = "sample_id")
-
-# . Bulk: S42 (S41 + KPMP CKD restricted to Diabetic Kidney Disease) ----
-meta_s42 <- meta_s41 %>%
-  filter(!(cohort == "KPMP" & condition == "CKD" &
-             primary_adjudicated_category != "Diabetic Kidney Disease"))
-
-# Module scores are per-sample means of the batch-corrected matrix, so the
-# S40 values are identical to those recomputed in S41/S42.
+# . Bulk: Fan DKD cohort (S20; log2 quantile-normalized, no batch correction) ----
+s20      <- readRDS(s20_rds)
+meta_fan <- s20$meta %>%
+  transmute(sample_id = sample,
+            condition = factor(as.character(condition),
+                               levels = c("Normal", "Early_DKD", "Advanced_DKD")),
+            pyrim_score, calcium_score, ecm_score, P2RY6, PDGFRB)
 
 # . scRNA: S50 (all CKD) ----
 s50         <- readRDS(s50_rds)
@@ -272,154 +267,49 @@ pb_cross_s62 <- inner_join(
 # (colours, labels, subtitles) are kept in a settings list per source so the
 # functions of different scripts do not clash.
 
-# . S40_Combined_BulkRNA.R ----
-s40_set <- list(
-  condition_levels = c("Normal", "Early_DKD", "Advanced_DKD", "AKI", "CKD"),
-  condition_labels = c("Normal", "Early DKD", "Adv. DKD", "AKI", "CKD"),
+# . S20_FanDKD_BulkRNA.R (Fan DKD cohort) ----
+fan_set <- list(
+  condition_levels = c("Normal", "Early_DKD", "Advanced_DKD"),
+  condition_labels = c("Normal", "Early DKD", "Adv. DKD"),
   condition_colors = c("Normal" = "#2166ac", "Early_DKD" = "#f4a582",
-                       "Advanced_DKD" = "#d6604d", "AKI" = "#e07b39",
-                       "CKD" = "#756bb1"),
-  cohort_shapes    = c("Fan" = 16, "KPMP" = 17),
-  comparisons_main = list(c("Normal", "Early_DKD"), c("Normal", "Advanced_DKD"),
-                          c("Normal", "AKI"), c("Normal", "CKD"))
+                       "Advanced_DKD" = "#d6604d"),
+  comparisons_main = list(c("Normal", "Early_DKD"), c("Normal", "Advanced_DKD"))
 )
+fan_set$subtitle_n <- paste(sprintf("%s (n=%d)", fan_set$condition_labels,
+                                    as.integer(table(meta_fan$condition))),
+                            collapse = ", ")
 
-n_subtitle <- function(meta, levels, labels) {
-  ns  <- table(meta$condition)
-  lbs <- setNames(labels, levels)
-  paste(sapply(levels[levels %in% names(ns)],
-               function(lv) sprintf("%s (n=%d)", lbs[lv], ns[lv])),
-        collapse = ", ")
-}
-s40_set$subtitle_n <- n_subtitle(meta_s40, s40_set$condition_levels,
-                                 s40_set$condition_labels)
-
-s40_box <- function(y_col, y_label, title_str, df = meta_s40, S = s40_set) {
-  cmp         <- S$comparisons_main
-  ymax        <- max(df[[y_col]], na.rm = TRUE)
-  ymin        <- min(df[[y_col]], na.rm = TRUE)
-  rng         <- ymax - ymin
-  upper_extra <- (0.08 * length(cmp) + 0.10) * rng
+fan_box <- function(y_col, y_label, title_str, df = meta_fan, S = fan_set) {
+  ymax <- max(df[[y_col]], na.rm = TRUE)
+  ymin <- min(df[[y_col]], na.rm = TRUE)
+  rng  <- ymax - ymin
   ggplot(df, aes(x = condition, y = .data[[y_col]], fill = condition)) +
-    geom_boxplot(outlier.shape = NA, alpha = 0.55, width = 0.55) +
-    geom_jitter(aes(shape = cohort), position = jitter_pos(0.12),
-                size = 2.2, alpha = 0.9) +
-    bh_signif(df, "condition", y_col, cmp) +
-    scale_fill_manual(values = S$condition_colors) +
-    scale_shape_manual(values = S$cohort_shapes) +
-    scale_x_discrete(labels = setNames(S$condition_labels, S$condition_levels)) +
-    scale_y_continuous(limits = c(ymin - 0.05 * rng, ymax + upper_extra)) +
-    labs(x = NULL, y = y_label, title = title_str, subtitle = S$subtitle_n,
-         shape = "Cohort") +
-    theme_box() +
-    theme(legend.position = "right",
-          legend.title    = element_text(size = 10))
-}
-
-s40_scatter <- function(x_col, y_col, x_label, y_label, title_str,
-                        df = meta_s40, S = s40_set) {
-  ct <- spearman_ci(df[[x_col]], df[[y_col]])
-  ggplot(df, aes(x = .data[[x_col]], y = .data[[y_col]],
-                 color = condition, shape = cohort)) +
-    geom_point(size = 2.5, alpha = 0.9) +
-    geom_smooth(method = "lm", se = FALSE, color = "black",
-                linewidth = 0.8, inherit.aes = FALSE,
-                aes(x = .data[[x_col]], y = .data[[y_col]])) +
-    scale_color_manual(values = S$condition_colors) +
-    scale_shape_manual(values = S$cohort_shapes) +
-    annotate("text", x = Inf, y = Inf,
-             label = ct$label, hjust = 1.05, vjust = 1.2, size = 3.8) +
-    labs(x = x_label, y = y_label, title = title_str, subtitle = S$subtitle_n,
-         color = NULL, shape = "Cohort") +
-    theme_bw(base_size = 13) +
-    theme(plot.title = element_text(face = "bold"), legend.position = "right")
-}
-
-# . S41_Combined_AdjudicatedColors.R / S42_Combined_DKD_Focused.R ----
-# Both scripts share the same plot functions; they differ only in the data
-# (S42: KPMP CKD = DKD only) and in the CKD axis label.
-adj_bulk_colors <- c(
-  # Fan: coloured by condition
-  "Normal"       = "#2166ac",
-  "Early_DKD"    = "#f4a582",
-  "Advanced_DKD" = "#d6604d",
-  # KPMP: coloured by primary adjudicated category
-  "Acute Tubular Injury"         = "#f39c12",
-  "Acute Interstitial Nephritis" = "#e74c3c",
-  "Diabetic Kidney Disease"      = "#2980b9",
-  "Hypertensive Kidney Disease"  = "#8e44ad",
-  "Other"                        = "#27ae60",
-  "Cannot be determined"         = "#95a5a6"
-)
-
-add_color_group <- function(meta) {
-  meta$color_group <- ifelse(meta$cohort == "Fan",
-                             as.character(meta$condition),
-                             meta$primary_adjudicated_category)
-  meta$color_group <- factor(meta$color_group, levels = names(adj_bulk_colors))
-  meta
-}
-meta_s41 <- add_color_group(meta_s41)
-meta_s42 <- add_color_group(meta_s42)
-
-s41_set <- s40_set
-s41_set$subtitle_n <- n_subtitle(meta_s41, s41_set$condition_levels,
-                                 s41_set$condition_labels)
-
-s42_set <- s40_set
-s42_set$condition_labels <- c("Normal", "Early DKD", "Adv. DKD", "AKI", "CKD\n(DKD only)")
-s42_set$subtitle_n <- n_subtitle(meta_s42, s42_set$condition_levels,
-                                 s42_set$condition_labels)
-
-adj_box <- function(y_col, y_label, title_str, df, S) {
-  cmp         <- S$comparisons_main
-  ymax        <- max(df[[y_col]], na.rm = TRUE)
-  ymin        <- min(df[[y_col]], na.rm = TRUE)
-  rng         <- ymax - ymin
-  upper_extra <- (0.08 * length(cmp) + 0.10) * rng
-  ggplot(df, aes(x = condition, y = .data[[y_col]])) +
-    geom_boxplot(aes(fill = condition), outlier.shape = NA,
-                 alpha = 0.45, width = 0.55) +
-    geom_jitter(aes(color = color_group, shape = cohort),
-                position = jitter_pos(0.12), size = 2.4, alpha = 0.95) +
-    bh_signif(df, "condition", y_col, cmp) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.45, width = 0.5) +
+    geom_jitter(position = jitter_pos(0.12), size = 2.2, alpha = 0.85) +
+    bh_signif(df, "condition", y_col, S$comparisons_main) +
     scale_fill_manual(values = S$condition_colors, guide = "none") +
-    scale_color_manual(values = adj_bulk_colors, name = NULL,
-                       guide = guide_legend(ncol = 1)) +
-    scale_shape_manual(values = S$cohort_shapes, name = "Cohort") +
     scale_x_discrete(labels = setNames(S$condition_labels, S$condition_levels)) +
-    scale_y_continuous(limits = c(ymin - 0.05 * rng, ymax + upper_extra)) +
+    scale_y_continuous(limits = c(ymin - 0.05 * rng, ymax + 0.26 * rng)) +
     labs(x = NULL, y = y_label, title = title_str, subtitle = S$subtitle_n) +
-    theme_box() +
-    theme(legend.position = "right",
-          legend.text  = element_text(size = 9),
-          legend.title = element_text(size = 10))
+    theme_box()
 }
 
-adj_scatter <- function(x_col, y_col, x_label, y_label, title_str, df, S) {
+fan_scatter <- function(x_col, y_col, x_label, y_label, title_str,
+                        df = meta_fan, S = fan_set) {
   ct <- spearman_ci(df[[x_col]], df[[y_col]])
-  ggplot(df, aes(x = .data[[x_col]], y = .data[[y_col]],
-                 color = color_group, shape = cohort)) +
-    geom_point(size = 2.8, alpha = 0.95) +
+  ggplot(df, aes(x = .data[[x_col]], y = .data[[y_col]], color = condition)) +
+    geom_point(size = 2.8, alpha = 0.9) +
     geom_smooth(method = "lm", se = FALSE, color = "black",
                 linewidth = 0.8, inherit.aes = FALSE,
                 aes(x = .data[[x_col]], y = .data[[y_col]])) +
-    scale_color_manual(values = adj_bulk_colors, name = NULL,
-                       guide = guide_legend(ncol = 1)) +
-    scale_shape_manual(values = S$cohort_shapes, name = "Cohort") +
+    scale_color_manual(values = S$condition_colors, name = NULL,
+                       labels = setNames(S$condition_labels, S$condition_levels)) +
     annotate("text", x = Inf, y = Inf,
              label = ct$label, hjust = 1.05, vjust = 1.2, size = 3.8) +
     labs(x = x_label, y = y_label, title = title_str, subtitle = S$subtitle_n) +
     theme_bw(base_size = 13) +
-    theme(plot.title = element_text(face = "bold"),
-          legend.position = "right",
-          legend.text  = element_text(size = 9),
-          legend.title = element_text(size = 10))
+    theme(plot.title = element_text(face = "bold"), legend.position = "right")
 }
-
-s42_box     <- function(...) adj_box(..., df = meta_s42, S = s42_set)
-s41_scatter <- function(...) adj_scatter(..., df = meta_s41, S = s41_set)
-s42_scatter <- function(...) adj_scatter(..., df = meta_s42, S = s42_set)
 
 # . S50_KPMP_scRNA_loadOnce.R ----
 s50_set <- list(
@@ -628,326 +518,257 @@ s62_fib_box <- function(y_col, y_label, title_str) {
 # FIGURE 1 — Pyrimidine score ----
 # ============================================================================#
 
-# (a) S40 Fig_pyrimidine_score.png
-f1a <- s40_box("pyrim_score", "Pyrimidine module score (log2)",
-               "Combined — Pyrimidine score")
-# (b) S42 Fig_pyrimidine_score.png
-f1b <- s42_box("pyrim_score", "Pyrimidine module score (log2)",
-               "Combined (DKD-focused) — Pyrimidine score")
-# (c) S50 Fig_PT_pyrimidine_score.png
-f1c <- s50_pt_box()
-# (d) S52 Fig_PT_pyrimidine_score.png
-f1d <- dkd_box(pb_pt_s52, "pyrim_score",
+# (a) S20 (Fan DKD cohort; top right, top left empty)
+f1a <- fan_box("pyrim_score", "Pyrimidine module score (log2)",
+              "Fan DKD bulk RNA-seq — Pyrimidine score")
+# (b) S50 Fig_PT_pyrimidine_score.png
+f1b <- s50_pt_box()
+# (c) S52 Fig_PT_pyrimidine_score.png
+f1c <- dkd_box(pb_pt_s52, "pyrim_score",
                "Pyrimidine module score (mean expression)",
                "KPMP scRNA (DKD-focused) — PT pyrimidine score",
                make_subtitle_sc(pb_pt_s52, s52_set), s52_set)
-# (e) S60 Fig_PT_pyrimidine_score.png
-f1e <- s60_pt_box()
-# (f) S62 Fig_PT_pyrimidine_score.png
-f1f <- dkd_box(pb_pt_s62, "pyrim_score",
+# (d) S60 Fig_PT_pyrimidine_score.png
+f1d <- s60_pt_box()
+# (e) S62 Fig_PT_pyrimidine_score.png
+f1e <- dkd_box(pb_pt_s62, "pyrim_score",
                "Pyrimidine module score (mean expression)",
                "KPMP snRNA (DKD-focused) — PT pyrimidine score",
                make_subtitle_sc(pb_pt_s62, s62_set, "patients", "enrollment"),
                s62_set, cond_col = "enrollment")
 
-save_figure(list(f1a, f1b, f1c, f1d, f1e, f1f), "Figure_1",
+save_figure(list(NULL, f1a, f1b, f1c, f1d, f1e), "Figure_1",
             width = 15, heights = c(6.2, 5.6, 5.6))
 
 # ============================================================================#
 # FIGURE 2 — P2RY6 ----
 # ============================================================================#
 
-# (a) S40 Fig_P2RY6.png
-f2a <- s40_box("P2RY6", "P2RY6 expression (log2)", "Combined — P2RY6")
-# (b) S42 Fig_P2RY6.png
-f2b <- s42_box("P2RY6", "P2RY6 expression (log2)", "Combined (DKD-focused) — P2RY6")
-# (c) S50 Fig_FB_P2RY6.png
+# (a) S20 (Fan DKD cohort; top right, top left empty)
+f2a <- fan_box("P2RY6", "P2RY6 expression (log2)", "Fan DKD bulk RNA-seq — P2RY6")
+# (b) S50 Fig_FB_P2RY6.png
 #     (Figures.pptx used Fig_FB_P2RY6_pct.png, % P2RY6+ cells; replaced by
 #      mean expression for consistency with panels (d)-(f), v5 revision)
-f2c <- s50_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
+f2b <- s50_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
                    "KPMP scRNA — P2RY6 in stroma cells")
-# (d) S52 Fig_FB_P2RY6.png
-f2d <- s52_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
+# (c) S52 Fig_FB_P2RY6.png
+f2c <- s52_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
                    "KPMP scRNA (DKD-focused) — P2RY6 in stroma")
-# (e) S60 Fig_FB_P2RY6.png
-f2e <- s60_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
+# (d) S60 Fig_FB_P2RY6.png
+f2d <- s60_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
                    "KPMP snRNA — P2RY6 in fibroblasts")
-# (f) S62 Fig_FB_P2RY6.png
-f2f <- s62_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
+# (e) S62 Fig_FB_P2RY6.png
+f2e <- s62_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
                    "KPMP snRNA (DKD-focused) — P2RY6 in fibroblasts")
 
-save_figure(list(f2a, f2b, f2c, f2d, f2e, f2f), "Figure_2",
+save_figure(list(NULL, f2a, f2b, f2c, f2d, f2e), "Figure_2",
             width = 15, heights = c(6.2, 5.6, 5.6))
 
 # ============================================================================#
 # FIGURE 3 — Calcium signaling score ----
 # ============================================================================#
 
-# (a) S40 Fig_calcium_score.png
-f3a <- s40_box("calcium_score", "Calcium signaling score (log2)",
-               "Combined — Calcium score")
-# (b) S42 Fig_calcium_score.png
-f3b <- s42_box("calcium_score", "Calcium signaling score (log2)",
-               "Combined (DKD-focused) — Calcium score")
-# (c) S50 Fig_FB_calcium.png
-f3c <- s50_fib_box("mean_calcium_score", "Calcium signaling score (mean expression)",
+# (a) S20 (Fan DKD cohort; top right, top left empty)
+f3a <- fan_box("calcium_score", "Calcium signaling score (log2)",
+              "Fan DKD bulk RNA-seq — Calcium score")
+# (b) S50 Fig_FB_calcium.png
+f3b <- s50_fib_box("mean_calcium_score", "Calcium signaling score (mean expression)",
                    "KPMP scRNA — Calcium score in stroma")
-# (d) S52 Fig_FB_calcium.png
-f3d <- s52_fib_box("mean_calcium_score", "Calcium signaling score (mean expression)",
+# (c) S52 Fig_FB_calcium.png
+f3c <- s52_fib_box("mean_calcium_score", "Calcium signaling score (mean expression)",
                    "KPMP scRNA (DKD-focused) — Calcium score in stroma")
-# (e) S60 Fig_FB_calcium.png
-f3e <- s60_fib_box("mean_calcium_score", "Calcium signaling score (mean expression)",
+# (d) S60 Fig_FB_calcium.png
+f3d <- s60_fib_box("mean_calcium_score", "Calcium signaling score (mean expression)",
                    "KPMP snRNA — Calcium score in fibroblasts")
-# (f) S62 Fig_FB_calcium.png
-f3f <- s62_fib_box("mean_calcium_score", "Calcium signaling score (mean expression)",
+# (e) S62 Fig_FB_calcium.png
+f3e <- s62_fib_box("mean_calcium_score", "Calcium signaling score (mean expression)",
                    "KPMP snRNA (DKD-focused) — Calcium score in FBs")
 
-save_figure(list(f3a, f3b, f3c, f3d, f3e, f3f), "Figure_3",
+save_figure(list(NULL, f3a, f3b, f3c, f3d, f3e), "Figure_3",
             width = 15, heights = c(6.2, 5.6, 5.6))
 
 # ============================================================================#
 # FIGURE 4 — PDGFRB ----
 # ============================================================================#
 
-# (a) S40 Fig_PDGFRB.png
-f4a <- s40_box("PDGFRB", "PDGFRB expression (log2)", "Combined — PDGFRB")
-# (b) S42 Fig_PDGFRB.png
-f4b <- s42_box("PDGFRB", "PDGFRB expression (log2)", "Combined (DKD-focused) — PDGFRB")
-# (c) S50 Fig_FB_PDGFRB.png
-f4c <- s50_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
+# (a) S20 (Fan DKD cohort; top right, top left empty)
+f4a <- fan_box("PDGFRB", "PDGFRB expression (log2)", "Fan DKD bulk RNA-seq — PDGFRB")
+# (b) S50 Fig_FB_PDGFRB.png
+f4b <- s50_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
                    "KPMP scRNA — PDGFRB in stroma cells")
-# (d) S52 Fig_FB_PDGFRB.png
-f4d <- s52_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
+# (c) S52 Fig_FB_PDGFRB.png
+f4c <- s52_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
                    "KPMP scRNA (DKD-focused) — PDGFRB in stroma")
-# (e) S60 Fig_FB_PDGFRB.png
-f4e <- s60_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
+# (d) S60 Fig_FB_PDGFRB.png
+f4d <- s60_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
                    "KPMP snRNA — PDGFRB in fibroblasts")
-# (f) S62 Fig_FB_PDGFRB.png
-f4f <- s62_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
+# (e) S62 Fig_FB_PDGFRB.png
+f4e <- s62_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
                    "KPMP snRNA (DKD-focused) — PDGFRB in fibroblasts")
 
-save_figure(list(f4a, f4b, f4c, f4d, f4e, f4f), "Figure_4",
+save_figure(list(NULL, f4a, f4b, f4c, f4d, f4e), "Figure_4",
             width = 15, heights = c(6.2, 5.6, 5.6))
 
 # ============================================================================#
 # FIGURE 5 — ECM score ----
 # ============================================================================#
 
-# (a) S40 Fig_ECM_score.png
-f5a <- s40_box("ecm_score", "ECM / fibrotic score (log2)", "Combined — ECM score")
-# (b) S42 Fig_ECM_score.png
-f5b <- s42_box("ecm_score", "ECM / fibrotic score (log2)",
-               "Combined (DKD-focused) — ECM score")
-# (c) S50 Fig_FB_ECM.png
-f5c <- s50_fib_box("mean_ecm_score", "ECM score (mean expression)",
+# (a) S20 (Fan DKD cohort; top right, top left empty)
+f5a <- fan_box("ecm_score", "ECM / fibrotic score (log2)", "Fan DKD bulk RNA-seq — ECM score")
+# (b) S50 Fig_FB_ECM.png
+f5b <- s50_fib_box("mean_ecm_score", "ECM score (mean expression)",
                    "KPMP scRNA — ECM score in stroma")
-# (d) S52 Fig_FB_ECM.png
-f5d <- s52_fib_box("mean_ecm_score", "ECM score (mean expression)",
+# (c) S52 Fig_FB_ECM.png
+f5c <- s52_fib_box("mean_ecm_score", "ECM score (mean expression)",
                    "KPMP scRNA (DKD-focused) — ECM score in stroma")
-# (e) S60 Fig_FB_ECM.png
-f5e <- s60_fib_box("mean_ecm_score", "ECM score (mean expression)",
+# (d) S60 Fig_FB_ECM.png
+f5d <- s60_fib_box("mean_ecm_score", "ECM score (mean expression)",
                    "KPMP snRNA — ECM score in fibroblasts")
-# (f) S62 Fig_FB_ECM.png
-f5f <- s62_fib_box("mean_ecm_score", "ECM score (mean expression)",
+# (e) S62 Fig_FB_ECM.png
+f5e <- s62_fib_box("mean_ecm_score", "ECM score (mean expression)",
                    "KPMP snRNA (DKD-focused) — ECM score in FBs")
 
-save_figure(list(f5a, f5b, f5c, f5d, f5e, f5f), "Figure_5",
+save_figure(list(NULL, f5a, f5b, f5c, f5d, f5e), "Figure_5",
             width = 15, heights = c(6.2, 5.6, 5.6))
 
 # ============================================================================#
 # FIGURE 6 — PT pyrimidine score vs ECM score ----
 # ============================================================================#
 
-# (a) S41 Fig_cor_Pyrimidine_ECM.png
-f6a <- s41_scatter("pyrim_score", "ecm_score", "Pyrimidine score", "ECM score",
-                   "Combined — Pyrimidine vs ECM")
-# (b) S42 Fig_cor_Pyrimidine_ECM.png
-f6b <- s42_scatter("pyrim_score", "ecm_score", "Pyrimidine score", "ECM score",
-                   "Combined (DKD-focused) — Pyrimidine vs ECM")
-# (c) S50 Fig_Cor_PT_Pyrimidine_vs_FB_ECM.png
-f6c <- sc_cor(pb_cross_s50, "pyrim_score", "mean_ecm_score",
+# (a) S20 (Fan DKD cohort; top right, top left empty)
+f6a <- fan_scatter("pyrim_score", "ecm_score", "Pyrimidine score", "ECM score",
+                  "Fan DKD bulk RNA-seq — Pyrimidine vs ECM")
+# (b) S50 Fig_Cor_PT_Pyrimidine_vs_FB_ECM.png
+f6b <- sc_cor(pb_cross_s50, "pyrim_score", "mean_ecm_score",
               "PT pyrimidine score (pseudobulk)", "Stroma ECM score (pseudobulk)",
               "KPMP scRNA — PT pyrimidine vs Stroma ECM",
               colors = s50_set$condition_colors)
-# (d) S52 Fig_Cor_PT_Pyrimidine_vs_FB_ECM.png
-f6d <- sc_cor(pb_cross_s52, "pyrim_score", "mean_ecm_score",
+# (c) S52 Fig_Cor_PT_Pyrimidine_vs_FB_ECM.png
+f6c <- sc_cor(pb_cross_s52, "pyrim_score", "mean_ecm_score",
               "PT pyrimidine score (pseudobulk)", "Stroma ECM score (pseudobulk)",
               "KPMP scRNA (DKD-focused) — PT pyrimidine vs Stroma ECM",
               colors = s52_set$condition_colors, drop = FALSE)
-# (e) S60 Fig_Cor_PT_Pyrimidine_vs_FB_ECM.png
-f6e <- sc_cor(pb_cross_s60, "pyrim_score", "mean_ecm_score",
+# (d) S60 Fig_Cor_PT_Pyrimidine_vs_FB_ECM.png
+f6d <- sc_cor(pb_cross_s60, "pyrim_score", "mean_ecm_score",
               "PT pyrimidine score (pseudobulk)", "FB ECM score (pseudobulk)",
               "KPMP snRNA — PT pyrimidine vs FB ECM",
               colors = s60_set$condition_colors, color_col = "enrollment",
               subtitle = sprintf("n = %d matched patients", nrow(pb_cross_s60)))
-# (f) S62 Fig_Cor_PT_Pyrimidine_vs_FB_ECM.png
-f6f <- sc_cor(pb_cross_s62, "pyrim_score", "mean_ecm_score",
+# (e) S62 Fig_Cor_PT_Pyrimidine_vs_FB_ECM.png
+f6e <- sc_cor(pb_cross_s62, "pyrim_score", "mean_ecm_score",
               "PT pyrimidine score (pseudobulk)", "FB ECM score (pseudobulk)",
               "KPMP snRNA (DKD-focused) — PT pyrimidine vs FB ECM",
               colors = s62_set$condition_colors, color_col = "enrollment",
               subtitle = sprintf("n = %d matched patients", nrow(pb_cross_s62)),
               drop = FALSE)
 
-save_figure(list(f6a, f6b, f6c, f6d, f6e, f6f), "Figure_6",
+save_figure(list(NULL, f6a, f6b, f6c, f6d, f6e), "Figure_6",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
-# SUPPLEMENTARY FIGURE S1 — PCA before / after ComBat ----
-# ============================================================================#
-# Code from S40_Combined_BulkRNA.R §1-§4 (merge of S20/S30 matrices and
-# PCA QC plots); the ComBat-corrected matrix is taken from S40_corrected.rds.
-
-s20 <- readRDS(s20_rds)
-fan_mat  <- s20$expr_mat
-kpmp_mat <- s30$expr_mat
-common_genes <- intersect(rownames(fan_mat), rownames(kpmp_mat))
-combined_mat <- cbind(fan_mat[common_genes, ], kpmp_mat[common_genes, ])
-corrected_mat <- s40$corrected_mat
-stopifnot(identical(colnames(combined_mat), meta_s40$sample_id),
-          identical(colnames(corrected_mat), meta_s40$sample_id))
-
-top_var_genes <- function(mat, n = 2000) {
-  rv <- apply(mat, 1, var)
-  head(order(rv, decreasing = TRUE), n)
-}
-
-pca_plot <- function(mat, meta, title_str, S = s40_set) {
-  idx <- top_var_genes(mat, 2000)
-  pca <- prcomp(t(mat[idx, ]), scale. = TRUE)
-  pve <- round(summary(pca)$importance[2, 1:2] * 100, 1)
-  df  <- data.frame(PC1 = pca$x[, 1], PC2 = pca$x[, 2],
-                    condition = meta$condition, cohort = meta$cohort)
-  ggplot(df, aes(x = PC1, y = PC2, color = condition, shape = cohort)) +
-    geom_point(size = 3, alpha = 0.9) +
-    scale_color_manual(values = S$condition_colors) +
-    scale_shape_manual(values = S$cohort_shapes) +
-    labs(x = sprintf("PC1 (%.1f%%)", pve[1]),
-         y = sprintf("PC2 (%.1f%%)", pve[2]),
-         title = title_str, color = NULL, shape = NULL) +
-    theme_bw(base_size = 13) +
-    theme(plot.title = element_text(face = "bold"))
-}
-
-# (a) S40 QC/PCA_pre_ComBat.png
-fs1a <- pca_plot(combined_mat,  meta_s40, "PCA — pre-ComBat (top 2000 variable genes)")
-# (b) S40 QC/PCA_post_ComBat.png
-fs1b <- pca_plot(corrected_mat, meta_s40, "PCA — post-ComBat (top 2000 variable genes)")
-
-save_figure(list(fs1a, fs1b), "Figure_S1", width = 13, heights = 5.8)
-
-# ============================================================================#
-# SUPPLEMENTARY FIGURE S2 — P2RY6 vs Calcium score ----
+# SUPPLEMENTARY FIGURE S1 — P2RY6 vs Calcium score ----
 # ============================================================================#
 
-# (a) S40 Fig_cor_P2RY6_Calcium.png
-fs2a <- s40_scatter("P2RY6", "calcium_score", "P2RY6 (log2)", "Calcium score",
-                    "Combined — P2RY6 vs Calcium")
-# (b) S42 Fig_cor_P2RY6_Calcium.png
-fs2b <- s42_scatter("P2RY6", "calcium_score", "P2RY6 (log2)", "Calcium score",
-                    "Combined (DKD-focused) — P2RY6 vs Calcium")
-# (c) S51 Fig_Cor_FB_P2RY6_vs_Calcium.png
-fs2c <- s51_cor_adj("mean_P2RY6", "mean_calcium_score",
+# (a) S20 (Fan DKD cohort; top right, top left empty)
+fs1a <- fan_scatter("P2RY6", "calcium_score", "P2RY6 (log2)", "Calcium score",
+                   "Fan DKD bulk RNA-seq — P2RY6 vs Calcium")
+# (b) S51 Fig_Cor_FB_P2RY6_vs_Calcium.png
+fs1b <- s51_cor_adj("mean_P2RY6", "mean_calcium_score",
                     "Stroma P2RY6 (pseudobulk)", "Stroma calcium score (pseudobulk)",
                     "KPMP scRNA — Stroma P2RY6 vs Calcium (adjudicated)")
-# (d) S52 Fig_Cor_FB_P2RY6_vs_Calcium.png
-fs2d <- sc_cor(pb_fib_s52, "mean_P2RY6", "mean_calcium_score",
+# (c) S52 Fig_Cor_FB_P2RY6_vs_Calcium.png
+fs1c <- sc_cor(pb_fib_s52, "mean_P2RY6", "mean_calcium_score",
                "Stroma P2RY6 (pseudobulk)", "Stroma calcium score (pseudobulk)",
                "KPMP scRNA (DKD-focused) — Stroma P2RY6 vs Calcium",
                colors = s52_set$condition_colors, drop = FALSE,
                subtitle = sprintf("n = %d stroma samples", nrow(pb_fib_s52)))
-# (e) S60 Fig_Cor_FB_P2RY6_vs_Calcium.png
-fs2e <- sc_cor(pb_fib_s60, "mean_P2RY6", "mean_calcium_score",
+# (d) S60 Fig_Cor_FB_P2RY6_vs_Calcium.png
+fs1d <- sc_cor(pb_fib_s60, "mean_P2RY6", "mean_calcium_score",
                "FB P2RY6 (pseudobulk)", "FB calcium score (pseudobulk)",
                "KPMP snRNA — FB P2RY6 vs Calcium",
                colors = s60_set$condition_colors, color_col = "enrollment",
                subtitle = sprintf("n = %d fibroblast patients", nrow(pb_fib_s60)))
-# (f) S62 Fig_Cor_FB_P2RY6_vs_Calcium.png
-fs2f <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_calcium_score",
+# (e) S62 Fig_Cor_FB_P2RY6_vs_Calcium.png
+fs1e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_calcium_score",
                "FB P2RY6 (pseudobulk)", "FB calcium score (pseudobulk)",
                "KPMP snRNA (DKD-focused) — FB P2RY6 vs Calcium",
                colors = s62_set$condition_colors, color_col = "enrollment",
                subtitle = sprintf("n = %d fibroblast patients", nrow(pb_fib_s62)),
                drop = FALSE)
 
-save_figure(list(fs2a, fs2b, fs2c, fs2d, fs2e, fs2f), "Figure_S2",
+save_figure(list(NULL, fs1a, fs1b, fs1c, fs1d, fs1e), "Figure_S1",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
-# SUPPLEMENTARY FIGURE S3 — P2RY6 vs PDGFRB ----
+# SUPPLEMENTARY FIGURE S2 — P2RY6 vs PDGFRB ----
 # ============================================================================#
 # Axes swapped relative to the source panels (P2RY6 on x, PDGFRB on y), as in
-# Figures S2 and S4. Spearman rho is symmetric; only the linear fit line changes.
+# Figures S1 and S3. Spearman rho is symmetric; only the linear fit line changes.
 
-# (a) S40 Fig_cor_PDGFRB_P2RY6.png
-fs3a <- s40_scatter("P2RY6", "PDGFRB", "P2RY6 (log2)", "PDGFRB (log2)",
-                    "Combined — P2RY6 vs PDGFRB")
-# (b) S42 Fig_cor_PDGFRB_P2RY6.png
-fs3b <- s42_scatter("P2RY6", "PDGFRB", "P2RY6 (log2)", "PDGFRB (log2)",
-                    "Combined (DKD-focused) — P2RY6 vs PDGFRB")
-# (c) S51 Fig_Cor_FB_PDGFRB_vs_P2RY6.png
-fs3c <- s51_cor_adj("mean_P2RY6", "mean_PDGFRB",
+# (a) S20 (Fan DKD cohort; top right, top left empty)
+fs2a <- fan_scatter("P2RY6", "PDGFRB", "P2RY6 (log2)", "PDGFRB (log2)",
+                   "Fan DKD bulk RNA-seq — P2RY6 vs PDGFRB")
+# (b) S51 Fig_Cor_FB_PDGFRB_vs_P2RY6.png
+fs2b <- s51_cor_adj("mean_P2RY6", "mean_PDGFRB",
                     "Stroma P2RY6 (pseudobulk)", "Stroma PDGFRB (pseudobulk)",
                     "KPMP scRNA — Stroma P2RY6 vs PDGFRB (adjudicated)")
-# (d) S52 Fig_Cor_FB_PDGFRB_vs_P2RY6.png
-fs3d <- sc_cor(pb_fib_s52, "mean_P2RY6", "mean_PDGFRB",
+# (c) S52 Fig_Cor_FB_PDGFRB_vs_P2RY6.png
+fs2c <- sc_cor(pb_fib_s52, "mean_P2RY6", "mean_PDGFRB",
                "Stroma P2RY6 (pseudobulk)", "Stroma PDGFRB (pseudobulk)",
                "KPMP scRNA (DKD-focused) — Stroma P2RY6 vs PDGFRB",
                colors = s52_set$condition_colors, drop = FALSE,
                subtitle = sprintf("n = %d stroma samples", nrow(pb_fib_s52)))
-# (e) S60 Fig_Cor_FB_PDGFRB_vs_P2RY6.png
-fs3e <- sc_cor(pb_fib_s60, "mean_P2RY6", "mean_PDGFRB",
+# (d) S60 Fig_Cor_FB_PDGFRB_vs_P2RY6.png
+fs2d <- sc_cor(pb_fib_s60, "mean_P2RY6", "mean_PDGFRB",
                "FB P2RY6 (pseudobulk)", "FB PDGFRB (pseudobulk)",
                "KPMP snRNA — FB P2RY6 vs PDGFRB",
                colors = s60_set$condition_colors, color_col = "enrollment",
                subtitle = sprintf("n = %d fibroblast patients", nrow(pb_fib_s60)))
-# (f) S62 Fig_Cor_FB_PDGFRB_vs_P2RY6.png
-fs3f <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_PDGFRB",
+# (e) S62 Fig_Cor_FB_PDGFRB_vs_P2RY6.png
+fs2e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_PDGFRB",
                "FB P2RY6 (pseudobulk)", "FB PDGFRB (pseudobulk)",
                "KPMP snRNA (DKD-focused) — FB P2RY6 vs PDGFRB",
                colors = s62_set$condition_colors, color_col = "enrollment",
                subtitle = sprintf("n = %d fibroblast patients", nrow(pb_fib_s62)),
                drop = FALSE)
 
-save_figure(list(fs3a, fs3b, fs3c, fs3d, fs3e, fs3f), "Figure_S3",
+save_figure(list(NULL, fs2a, fs2b, fs2c, fs2d, fs2e), "Figure_S2",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
-# SUPPLEMENTARY FIGURE S4 — P2RY6 vs ECM score ----
+# SUPPLEMENTARY FIGURE S3 — P2RY6 vs ECM score ----
 # ============================================================================#
 # Not present in Figures.pptx (slide duplicated Suppl. Figure 2); assembled
-# from the P2RY6 vs ECM outputs following the layout of Figures S2-S3.
+# from the P2RY6 vs ECM outputs following the layout of Figures S1-S2.
 
-# (a) S40 Fig_cor_P2RY6_ECM.png
-fs4a <- s40_scatter("P2RY6", "ecm_score", "P2RY6 (log2)", "ECM score",
-                    "Combined — P2RY6 vs ECM")
-# (b) S42 Fig_cor_P2RY6_ECM.png
-fs4b <- s42_scatter("P2RY6", "ecm_score", "P2RY6 (log2)", "ECM score",
-                    "Combined (DKD-focused) — P2RY6 vs ECM")
-# (c) S51 Fig_Cor_FB_P2RY6_vs_ECM.png
-fs4c <- s51_cor_adj("mean_P2RY6", "mean_ecm_score",
+# (a) S20 (Fan DKD cohort; top right, top left empty)
+fs3a <- fan_scatter("P2RY6", "ecm_score", "P2RY6 (log2)", "ECM score",
+                   "Fan DKD bulk RNA-seq — P2RY6 vs ECM")
+# (b) S51 Fig_Cor_FB_P2RY6_vs_ECM.png
+fs3b <- s51_cor_adj("mean_P2RY6", "mean_ecm_score",
                     "Stroma P2RY6 (pseudobulk)", "Stroma ECM score (pseudobulk)",
                     "KPMP scRNA — Stroma P2RY6 vs ECM (adjudicated)")
-# (d) S52 Fig_Cor_FB_P2RY6_vs_ECM.png
-fs4d <- sc_cor(pb_fib_s52, "mean_P2RY6", "mean_ecm_score",
+# (c) S52 Fig_Cor_FB_P2RY6_vs_ECM.png
+fs3c <- sc_cor(pb_fib_s52, "mean_P2RY6", "mean_ecm_score",
                "Stroma P2RY6 (pseudobulk)", "Stroma ECM score (pseudobulk)",
                "KPMP scRNA (DKD-focused) — Stroma P2RY6 vs ECM",
                colors = s52_set$condition_colors, drop = FALSE,
                subtitle = sprintf("n = %d stroma samples", nrow(pb_fib_s52)))
-# (e) S60 Fig_Cor_FB_P2RY6_vs_ECM.png
-fs4e <- sc_cor(pb_fib_s60, "mean_P2RY6", "mean_ecm_score",
+# (d) S60 Fig_Cor_FB_P2RY6_vs_ECM.png
+fs3d <- sc_cor(pb_fib_s60, "mean_P2RY6", "mean_ecm_score",
                "FB P2RY6 (pseudobulk)", "FB ECM score (pseudobulk)",
                "KPMP snRNA — FB P2RY6 vs ECM",
                colors = s60_set$condition_colors, color_col = "enrollment",
                subtitle = sprintf("n = %d fibroblast patients", nrow(pb_fib_s60)))
-# (f) S62 Fig_Cor_FB_P2RY6_vs_ECM.png
-fs4f <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_ecm_score",
+# (e) S62 Fig_Cor_FB_P2RY6_vs_ECM.png
+fs3e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_ecm_score",
                "FB P2RY6 (pseudobulk)", "FB ECM score (pseudobulk)",
                "KPMP snRNA (DKD-focused) — FB P2RY6 vs ECM",
                colors = s62_set$condition_colors, color_col = "enrollment",
                subtitle = sprintf("n = %d fibroblast patients", nrow(pb_fib_s62)),
                drop = FALSE)
 
-save_figure(list(fs4a, fs4b, fs4c, fs4d, fs4e, fs4f), "Figure_S4",
+save_figure(list(NULL, fs3a, fs3b, fs3c, fs3d, fs3e), "Figure_S3",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 cat("\nS80 complete. Figures saved to:", out_dir, "\n")

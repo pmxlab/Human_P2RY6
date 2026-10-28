@@ -1,14 +1,14 @@
 # ============================================================================#
 # S82_P2RY6_Detection.R
 # Supplementary Table S1: detection of P2RY6 in the stromal (KPMP scRNA-seq)
-# and fibroblast (KPMP snRNA-seq) pseudobulk profiles shown in Figure 2c-f
+# and fibroblast (KPMP snRNA-seq) pseudobulk profiles shown in Figure 2b-e
 # (reviewer comment R1.04).
 #
 # Per dataset and group: participants, cells/nuclei per participant, share
 # of P2RY6-positive cells/nuclei per participant (UMI count > 0), participants
 # without any P2RY6-positive cell/nucleus, and pooled P2RY6-positive cells/
 # nuclei over all cells/nuclei of the group. Participant sets are those of
-# Figure 2c-f (S80): all conditions from S50/S60; the DKD-focused panels share
+# Figure 2b-e (S80): all conditions from S50/S60; the DKD-focused panels share
 # the Healthy and AKI groups and add CKD restricted to adjudicated Diabetic
 # Kidney Disease as a separate row.
 #
@@ -36,7 +36,7 @@ cond_map <- c("Healthy Reference Tissue" = "Healthy", "Healthy Reference" = "Hea
               "Chronic Kidney Disease" = "CKD", "CKD" = "CKD")
 
 # ============================================================================#
-# 1. PARTICIPANT SETS OF FIGURE 2c-f ----
+# 1. PARTICIPANT SETS OF FIGURE 2b-e ----
 # ============================================================================#
 
 s50 <- readRDS(s50_rds)
@@ -56,13 +56,13 @@ dkd_only <- function(df) filter(df, !(condition == "CKD" & adjudicated != "Diabe
 # only the CKD group differs, so CKD (DKD only) is added as a separate row.
 sets <- list(
   list(data = sc,                                  dataset = "scRNA-seq", compartment = "Stroma",
-       figure = c(Healthy = "2c, 2d", AKI = "2c, 2d", CKD = "2c")),
+       figure = c(Healthy = "2b, 2c", AKI = "2b, 2c", CKD = "2b")),
   list(data = dkd_only(sc) %>% filter(condition == "CKD") %>% mutate(condition = "CKD (DKD only)"),
-       dataset = "scRNA-seq", compartment = "Stroma", figure = c("CKD (DKD only)" = "2d")),
+       dataset = "scRNA-seq", compartment = "Stroma", figure = c("CKD (DKD only)" = "2c")),
   list(data = sn,                                  dataset = "snRNA-seq", compartment = "Fibroblasts",
-       figure = c(Healthy = "2e, 2f", AKI = "2e, 2f", CKD = "2e")),
+       figure = c(Healthy = "2d, 2e", AKI = "2d, 2e", CKD = "2d")),
   list(data = dkd_only(sn) %>% filter(condition == "CKD") %>% mutate(condition = "CKD (DKD only)"),
-       dataset = "snRNA-seq", compartment = "Fibroblasts", figure = c("CKD (DKD only)" = "2f"))
+       dataset = "snRNA-seq", compartment = "Fibroblasts", figure = c("CKD (DKD only)" = "2e"))
 )
 
 # ============================================================================#
@@ -96,8 +96,8 @@ stopifnot(identical(tab$participants, c(36L, 15L, 41L, 15L, 36L, 31L, 63L, 27L))
 print(as.data.frame(tab))
 
 # dependence of mean P2RY6 on cells/nuclei per participant (all conditions)
-for (nm in c("2c", "2e")) {
-  d <- if (nm == "2c") s50$pb_fib else s60$pb_fib
+for (nm in c("2b", "2d")) {
+  d <- if (nm == "2b") s50$pb_fib else s60$pb_fib
   ct <- cor.test(d$mean_P2RY6, d$n_cells, method = "spearman", exact = FALSE)
   cat(sprintf("Panel %s: Spearman rho(mean P2RY6, cells per participant) = %.2f, p = %.3g\n",
               nm, ct$estimate, ct$p.value))

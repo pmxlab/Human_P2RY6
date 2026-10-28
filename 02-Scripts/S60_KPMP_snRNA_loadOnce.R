@@ -251,6 +251,9 @@ pb_fib <- df_fib %>%
     mean_PDGFRB        = mean(.data$PDGFRB, na.rm = TRUE),
     mean_calcium_score = mean(.data$calcium_score, na.rm = TRUE),
     mean_ecm_score     = mean(.data$ecm_score, na.rm = TRUE),
+    # individual module genes (per-gene figures, S84; R1.09/R2.12)
+    across(all_of(intersect(c(calcium_genes, ecm_genes), fib_found)),
+           ~ mean(.x, na.rm = TRUE)),
     n_cells       = n(),
     .groups       = "drop"
   ) %>%

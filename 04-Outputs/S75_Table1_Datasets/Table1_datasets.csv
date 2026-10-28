@@ -1,6 +1,6 @@
 "Dataset","Platform","Original participants","Exclusions","Analyzed participants","Processing"
 "Fan DKD (GSE142025)","Bulk RNA-seq","36 (Normal 9, Early DKD 6, Advanced DKD 21)","None","All conditions:
-- Whole tissue: Normal 9, Early DKD 6, Advanced DKD 21 (n=36)","By Fan et al.: read counts log2-transformed and quantile-normalized, transcripts with < 100 reads across all samples removed; deposited in GEO in this form (raw counts not available). In this study: values used without further normalization. One kidney biopsy per participant."
+- Whole tissue: Normal 9, Early DKD 6, Advanced DKD 21 (n=36)","By Fan et al.: read counts log2-transformed and quantile-normalized, transcripts with < 100 reads across all samples removed; deposited in GEO in this form (raw counts not available). In this study: values used without further normalization. One kidney sample per participant (DKD: biopsy; Normal: tumor nephrectomy)."
 "KPMP scRNA-seq (incl. Lake 2023)","scRNA-seq","111 (Healthy 37, AKI 20, CKD 51, DM-R 3)","enrollment category not studied (n=3);
 < 20 PT cells (n=6);
 < 20 stroma cells (n=16);

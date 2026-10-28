@@ -10,8 +10,8 @@ Table 1. Summary of transcriptomic datasets used in this study.
 |                   |              |                            |                                 | 21 (n=36)                                            | reads across all samples removed; deposited in   |
 |                   |              |                            |                                 |                                                      | GEO in this form (raw counts not available). In  |
 |                   |              |                            |                                 |                                                      | this study: values used without further          |
-|                   |              |                            |                                 |                                                      | normalization. One kidney biopsy per             |
-|                   |              |                            |                                 |                                                      | participant.                                     |
+|                   |              |                            |                                 |                                                      | normalization. One kidney sample per participant |
+|                   |              |                            |                                 |                                                      | (DKD: biopsy; Normal: tumor nephrectomy).        |
 +-------------------+--------------+----------------------------+---------------------------------+------------------------------------------------------+--------------------------------------------------+
 | KPMP scRNA-seq    | scRNA-seq    | 111 (Healthy 37, AKI 20,   | enrollment category not studied | **All conditions:**\                                 | By KPMP: integrated object including the Lake et |
 | (incl. Lake 2023) |              | CKD 51, DM-R 3)            | (n=3);\                         | - PT: Healthy 33, AKI 20, CKD 49 (n=102)\            | al. (2023) atlas, with raw UMI counts,           |

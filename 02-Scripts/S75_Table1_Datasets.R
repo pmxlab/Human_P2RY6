@@ -434,7 +434,8 @@ proc <- c(
   "Fan DKD bulk" = paste(
     "By Fan et al.: read counts log2-transformed and quantile-normalized, transcripts with < 100",
     "reads across all samples removed; deposited in GEO in this form (raw counts not available).",
-    "In this study: values used without further normalization. One kidney biopsy per participant."),
+    "In this study: values used without further normalization. One kidney sample per participant",
+    "(DKD: biopsy; Normal: tumor nephrectomy)."),
   "KPMP bulk" = paste(
     "In this study: one count file per participant (for replicates, the file with the largest",
     "library); participants with < 1 million mapped reads or an undetermined adjudicated diagnosis",

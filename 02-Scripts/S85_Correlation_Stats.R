@@ -1,8 +1,11 @@
 # ============================================================================#
 # S85_Correlation_Stats.R
 # Correlation statistics for all correlation panels of the manuscript
-# (Figure 6 and Supplementary Figures S1-S3): pooled, adjusted for condition
+# (Figure 6 and Supplementary Figures S2-S4): pooled, adjusted for condition
 # and within condition, with multiple-testing correction.
+# Figures and tables are labelled with the manuscript numbering (Revision 1,
+# after ms_rev1_v32): the supplementary figures fs1-fs3 of S80 are Figures
+# S2-S4, and the compact table is Table S6; the output file names are unchanged.
 # Reviewer comments R1.07, R2.04, R2.07 (Life, life-4655118)
 #
 # The panels are rebuilt from S80_Manuscript_Figures.R (as in S81, no files
@@ -22,7 +25,7 @@
 #
 # Outputs: 04-Outputs/S85_Correlation_Stats/
 #   Table_correlations_all.csv     long table (all statistics)
-#   Table_S4_correlations.csv/.md  compact supplementary table (Table S4)
+#   Table_S4_correlations.csv/.md  compact supplementary table (Table S6)
 # ============================================================================#
 
 rm(list = ls())
@@ -45,9 +48,9 @@ min_n_within <- 5
 panel_ids <- c(paste0("f6", letters[1:5]), paste0("fs", rep(1:3, each = 5), letters[1:5]))
 
 pairs <- c("6"  = "PT pyrimidine score vs ECM score",
-           "S1" = "P2RY6 vs calcium score",
-           "S2" = "P2RY6 vs PDGFRB",
-           "S3" = "P2RY6 vs ECM score")
+           "S2" = "P2RY6 vs calcium score",
+           "S3" = "P2RY6 vs PDGFRB",
+           "S4" = "P2RY6 vs ECM score")
 
 dataset_of <- c(a = "Fan DKD bulk RNA-seq", b = "KPMP scRNA-seq", c = "KPMP scRNA-seq",
                 d = "KPMP snRNA-seq", e = "KPMP snRNA-seq")
@@ -122,7 +125,8 @@ panel_data <- function(id) {
 # ============================================================================#
 
 res <- bind_rows(lapply(panel_ids, function(id) {
-  fig    <- sub("^f(s?)(\\d)([a-e])$", "\\1\\2", id); fig <- ifelse(grepl("^s", fig), toupper(fig), fig)
+  # S80 fs1-fs3 -> manuscript Figures S2-S4
+  fig    <- if (startsWith(id, "fs")) paste0("S", as.integer(substr(id, 3, 3)) + 1) else substr(id, 2, 2)
   letter <- sub(".*([a-e])$", "\\1", id)
   d <- panel_data(id)
   meta <- data.frame(figure = fig, panel = paste0(fig, letter), pair = pairs[[fig]],
@@ -169,7 +173,7 @@ tab <- res %>%
   select(Figure = panel, Correlation = pair, Dataset = dataset, Analysis = analysis,
          Stratum = stratum, n, `rho [95% CI]` = rho_ci, p = p_txt, `p (BH)` = pBH_txt)
 write.csv(tab, file.path(out_dir, "Table_S4_correlations.csv"), row.names = FALSE)
-writeLines(c("# Table S4. Correlations: pooled, adjusted for condition and within condition", "",
+writeLines(c("# Table S6. Correlations: pooled, adjusted for condition and within condition", "",
              paste("|", paste(names(tab), collapse = " | "), "|"),
              paste0(paste(rep("|---", ncol(tab)), collapse = ""), "|"),
              apply(tab, 1, function(r) paste("|", paste(r, collapse = " | "), "|"))),

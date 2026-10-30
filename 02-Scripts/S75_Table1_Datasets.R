@@ -325,7 +325,9 @@ comb_dkd_cond <- c(fan_cond, kb_cond[kb_dkd])
 # Revision 1: panels (a) show the Fan DKD cohort only; the KPMP bulk data and
 # the combined Fan + KPMP set are no longer analyzed (cohort and diagnosis
 # confounded; see S43).
-fan_fig <- "1a, 2a, 3a, 4a, 5a, 6a, S1a, S2a, S3a"
+# Figure 1a (bulk PT marker score) also shows the Fan DKD cohort; the KPMP
+# panels of Figure 1 are (c)-(f) (Revision 1, comment of A. Figurek).
+fan_fig <- "1a, 1b, 2a, 3a, 4a, 5a, 6a, S1a, S2a, S3a"
 
 # . scRNA-seq: fibroblasts are not analyzed separately (too few cells) ----
 sc_fib_n <- sc %>%
@@ -365,7 +367,7 @@ analyzed <- bind_rows(
             "none", "no", note = "not analyzed: cohort and diagnosis confounded (S43)"),
   count_row("Combined bulk", "DKD-focused", "Whole tissue", relabel(comb_dkd_cond, bulk_map),
             "none", "no", note = "not analyzed: cohort and diagnosis confounded (S43)"),
-  count_row("KPMP scRNA-seq", "All conditions", "PT", sc_u(sc_pt), "1b"),
+  count_row("KPMP scRNA-seq", "All conditions", "PT", sc_u(sc_pt), "1c"),
   count_row("KPMP scRNA-seq", "All conditions", "Stroma", sc_u(sc_st),
             "2b, 3b, 4b, 5b, S1b, S2b, S3b", note = paste("stroma class:", sc_stroma_txt)),
   count_row("KPMP scRNA-seq", "All conditions", "Fibroblasts",
@@ -373,7 +375,7 @@ analyzed <- bind_rows(
             note = sprintf("not analyzed: fewer than %d fibroblasts in most participants", min_cells)),
   count_row("KPMP scRNA-seq", "All conditions", "PT and stroma (matched)",
             sc_u(sc_pt %>% filter(participant %in% sc_cross)), "6b"),
-  count_row("KPMP scRNA-seq", "DKD-focused", "PT", sc_u(sc_pt_dkd), "1c"),
+  count_row("KPMP scRNA-seq", "DKD-focused", "PT", sc_u(sc_pt_dkd), "1d"),
   count_row("KPMP scRNA-seq", "DKD-focused", "Stroma", sc_u(sc_st_dkd),
             "2c, 3c, 4c, 5c, S1c, S2c, S3c"),
   count_row("KPMP scRNA-seq", "DKD-focused", "Fibroblasts",
@@ -381,14 +383,14 @@ analyzed <- bind_rows(
             note = sprintf("not analyzed: fewer than %d fibroblasts in most participants", min_cells)),
   count_row("KPMP scRNA-seq", "DKD-focused", "PT and stroma (matched)",
             sc_u(sc_pt_dkd %>% filter(participant %in% sc_cross_dkd)), "6c"),
-  count_row("KPMP snRNA-seq", "All conditions", "PT", sn_u(sn_pt), "1d"),
+  count_row("KPMP snRNA-seq", "All conditions", "PT", sn_u(sn_pt), "1e"),
   count_row("KPMP snRNA-seq", "All conditions", "Stroma", sn_u(sn_stroma), "none", "no",
             note = "not analyzed: fibroblast subclass analyzed instead; stroma = FIB + VSM/P"),
   count_row("KPMP snRNA-seq", "All conditions", "Fibroblasts", sn_u(sn_fb),
             "2d, 3d, 4d, 5d, S1d, S2d, S3d"),
   count_row("KPMP snRNA-seq", "All conditions", "PT and fibroblasts (matched)",
             sn_u(sn_pt %>% filter(patient %in% sn_cross)), "6d"),
-  count_row("KPMP snRNA-seq", "DKD-focused", "PT", sn_u(sn_pt_dkd), "1e"),
+  count_row("KPMP snRNA-seq", "DKD-focused", "PT", sn_u(sn_pt_dkd), "1f"),
   count_row("KPMP snRNA-seq", "DKD-focused", "Stroma", sn_u(sn_stroma_dkd), "none", "no",
             note = "not analyzed: fibroblast subclass analyzed instead; stroma = FIB + VSM/P"),
   count_row("KPMP snRNA-seq", "DKD-focused", "Fibroblasts", sn_u(sn_fb_dkd),

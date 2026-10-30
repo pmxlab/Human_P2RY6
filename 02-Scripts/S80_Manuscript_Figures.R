@@ -10,7 +10,7 @@
 #
 #   Figure     top left  (a)        (b)        (c)        (d)        (e)
 #   ---------  --------  ---------  ---------  ---------  ---------  ---------
-#   Figure 1   empty     S20        S50        S52        S60        S62      Pyrimidine score
+#   Figure 1   S20 (*1)  S20        S50        S52        S60        S62      Pyrimidine score
 #   Figure 2   empty     S20        S50        S52        S60        S62      P2RY6
 #   Figure 3   empty     S20        S50        S52        S60        S62      Calcium score
 #   Figure 4   empty     S20        S50        S52        S60        S62      PDGFRB
@@ -33,6 +33,12 @@
 #       "Suppl. Figure 2". The manuscript text describes this figure as the
 #       P2RY6 vs ECM correlations, which are assembled here following the
 #       layout of the other correlation figures.
+#   (*1) Revision 1 (comment of A. Figurek on ms_rev1_v31_AF): Figure 1 has
+#       no empty position; the bulk PT marker score (former Supplementary
+#       Figure S5a, S86) is panel (a) and the panels below are (b)-(f).
+#   Supplementary figures were renumbered in order of their citation in the
+#   Results (same revision): Figures S1, S2, S3 of this script are Figures
+#   S2, S3, S4 of the manuscript; the output file names are unchanged.
 #   (**) Axes swapped relative to S50-S62 (P2RY6 on x, PDGFRB on y) so that
 #       P2RY6 is on the x-axis in all supplementary correlation figures.
 #
@@ -77,6 +83,9 @@ sc_clin <- "../../KPMP_scRNA/OpenAccessClinicalData/20251205_OpenAccessClinicalD
 sn_clin <- "../../KPMP_snRNA/6d3047c2-588f-4ad4-8eba-f4c46a1e5c14_20251205_OpenAccessClinicalData/20251205_OpenAccessClinicalData.csv"
 out_dir <- "../04-Outputs/S80_Manuscript_Figures"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+pt_markers <- c("LRP2", "SLC5A12", "SLC22A6", "PRODH2", "SLC5A2", "SLC22A8", "SLC7A8",
+                "SLC34A1", "SLC5A10", "SLC5A11", "SLC7A13")
 
 dpi         <- 600   # MDPI: figures preferably >= 600 dpi
 jitter_seed <- 2026
@@ -231,7 +240,9 @@ meta_fan <- s20$meta %>%
   transmute(sample_id = sample,
             condition = factor(as.character(condition),
                                levels = c("Normal", "Early_DKD", "Advanced_DKD")),
-            pyrim_score, calcium_score, ecm_score, P2RY6, PDGFRB)
+            pyrim_score, calcium_score, ecm_score, P2RY6, PDGFRB) %>%
+  # PT marker score as in S86 (KPMP atlas PT markers; proxy of PT content)
+  mutate(pt_marker_score = colMeans(s20$expr_mat[pt_markers, sample_id]))
 
 # . scRNA: S50 (all CKD) ----
 s50         <- readRDS(s50_rds)
@@ -546,26 +557,29 @@ s62_fib_box <- function(y_col, y_label, title_str) {
 # FIGURE 1 — Pyrimidine score ----
 # ============================================================================#
 
-# (a) S20 (Fan DKD cohort; top right, top left empty)
-f1a <- fan_box("pyrim_score", "Pyrimidine module score (log2)",
+# (a) S86 bulk PT marker score (Fan DKD cohort; former Figure S5a)
+f1a <- fan_box("pt_marker_score", "PT marker score (log2)",
+               "Fan DKD bulk RNA-seq — PT marker score")
+# (b) S20 (Fan DKD cohort)
+f1b <- fan_box("pyrim_score", "Pyrimidine module score (log2)",
               "Fan DKD bulk RNA-seq — Pyrimidine score")
-# (b) S50 Fig_PT_pyrimidine_score.png
-f1b <- s50_pt_box()
-# (c) S52 Fig_PT_pyrimidine_score.png
-f1c <- dkd_box(pb_pt_s52, "pyrim_score",
+# (c) S50 Fig_PT_pyrimidine_score.png
+f1c <- s50_pt_box()
+# (d) S52 Fig_PT_pyrimidine_score.png
+f1d <- dkd_box(pb_pt_s52, "pyrim_score",
                "Pyrimidine module score (mean expression)",
                "KPMP scRNA (DKD-focused) — PT pyrimidine score",
                make_subtitle_sc(pb_pt_s52, s52_set), s52_set)
-# (d) S60 Fig_PT_pyrimidine_score.png
-f1d <- s60_pt_box()
-# (e) S62 Fig_PT_pyrimidine_score.png
-f1e <- dkd_box(pb_pt_s62, "pyrim_score",
+# (e) S60 Fig_PT_pyrimidine_score.png
+f1e <- s60_pt_box()
+# (f) S62 Fig_PT_pyrimidine_score.png
+f1f <- dkd_box(pb_pt_s62, "pyrim_score",
                "Pyrimidine module score (mean expression)",
                "KPMP snRNA (DKD-focused) — PT pyrimidine score",
                make_subtitle_sc(pb_pt_s62, s62_set, "patients", "enrollment"),
                s62_set, cond_col = "enrollment")
 
-save_figure(list(NULL, f1a, f1b, f1c, f1d, f1e), "Figure_1",
+save_figure(list(f1a, f1b, f1c, f1d, f1e, f1f), "Figure_1",
             width = 15, heights = c(6.2, 5.6, 5.6))
 
 # ============================================================================#

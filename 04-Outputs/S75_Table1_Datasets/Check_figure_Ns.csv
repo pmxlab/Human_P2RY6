@@ -1,9 +1,10 @@
 "Panel","Dataset","Analysis","Compartment","Normal/Healthy.figure","Early DKD.figure","Advanced DKD.figure","AKI.figure","CKD.figure","Total.figure","Rendered","Total.table","match"
 "1a","Fan DKD bulk","All conditions","Whole tissue",9,6,21,0,0,36,36,36,TRUE
-"1b","KPMP scRNA-seq","All conditions","PT",33,0,0,20,49,102,102,102,TRUE
-"1c","KPMP scRNA-seq","DKD-focused","PT",33,0,0,20,19,72,72,72,TRUE
-"1d","KPMP snRNA-seq","All conditions","PT",38,0,0,33,71,142,142,142,TRUE
-"1e","KPMP snRNA-seq","DKD-focused","PT",38,0,0,33,28,99,99,99,TRUE
+"1b","Fan DKD bulk","All conditions","Whole tissue",9,6,21,0,0,36,36,36,TRUE
+"1c","KPMP scRNA-seq","All conditions","PT",33,0,0,20,49,102,102,102,TRUE
+"1d","KPMP scRNA-seq","DKD-focused","PT",33,0,0,20,19,72,72,72,TRUE
+"1e","KPMP snRNA-seq","All conditions","PT",38,0,0,33,71,142,142,142,TRUE
+"1f","KPMP snRNA-seq","DKD-focused","PT",38,0,0,33,28,99,99,99,TRUE
 "2a","Fan DKD bulk","All conditions","Whole tissue",9,6,21,0,0,36,36,36,TRUE
 "2b","KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,92,92,TRUE
 "2c","KPMP scRNA-seq","DKD-focused","Stroma",36,0,0,15,15,66,66,66,TRUE

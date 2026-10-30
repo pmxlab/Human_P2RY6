@@ -35,11 +35,13 @@
 #   Table_PT_pyrimidine_cor.csv        PT pyrimidine score vs PT abundance
 #   Fig_PT_abundance.png               PT %, reference PT %, altered and
 #                                      degenerative PT % by condition
-#   Figure_S5.png/.pdf                 Supplementary Figure S5 (Revision 1):
-#                                      bulk PT marker score; reference-state
-#                                      PT % of all cells (scRNA-seq /
-#                                      snRNA-seq, all CKD and DKD-focused);
-#                                      BH stars, disease vs control
+#   Figure_S1.png/.pdf                 Supplementary Figure S1 (Revision 1;
+#                                      Figure S5 before the renumbering of the
+#                                      supplements): reference-state PT % of
+#                                      all cells (scRNA-seq / snRNA-seq, all
+#                                      CKD and DKD-focused); BH stars, disease
+#                                      vs control. The bulk PT marker score
+#                                      panel moved to Figure 1a (S80).
 # ============================================================================#
 
 rm(list = ls())
@@ -329,14 +331,14 @@ p <- ggplot(fig_df, aes(group, value, fill = group)) +
 ggsave(file.path(out_dir, "Fig_PT_abundance.png"), p, width = 6.5, height = 9, dpi = 300)
 
 # ============================================================================#
-# 8. SUPPLEMENTARY FIGURE S5 ----
+# 8. SUPPLEMENTARY FIGURE S1 ----
 # ============================================================================#
 
-# Layout of the main-text figures (S80): top-left position empty, bulk panel
-# (a) top right; (b, c) scRNA-seq, (d, e) snRNA-seq, each all CKD and
-# DKD-focused; reference-state PT cells only (total PT cells in Table S6).
+# (a, b) scRNA-seq, (c, d) snRNA-seq, each all CKD and DKD-focused;
+# reference-state PT cells only (total PT cells in Table S1). The bulk PT
+# marker score (former panel a) is Figure 1a (S80).
 # Each disease group vs the control group, BH-adjusted over the two
-# comparisons of each panel (same p-values as Table S6).
+# comparisons of each panel (same p-values as Table S1).
 p_stars <- function(p) {
   as.character(cut(p, c(-Inf, 1e-4, 1e-3, 1e-2, 0.05, Inf), c("****", "***", "**", "*", "ns")))
 }
@@ -364,10 +366,6 @@ s5_box <- function(df, y_col, y_lab, title_str, colors, labels) {
           plot.margin = margin(t = 26, r = 8, b = 6, l = 8))
 }
 
-fan_s5 <- s5_box(fan, "pt_marker_score", "PT marker score (log2)",
-                 "Fan DKD bulk RNA-seq\nPT marker score",
-                 c(Normal = "#2166ac", Early_DKD = "#f4a582", Advanced_DKD = "#d6604d"),
-                 c("Normal", "Early DKD", "Adv. DKD"))
 sc_panels <- list()
 for (ds in c("scRNA-seq", "snRNA-seq")) {
   for (st in c("all CKD", "DKD-focused")) {
@@ -380,11 +378,8 @@ for (ds in c("scRNA-seq", "snRNA-seq")) {
       group_colors, c("Healthy", "AKI", if (st == "DKD-focused") "CKD (DKD)" else "CKD"))
   }
 }
-panels <- c(list(NULL, fan_s5), sc_panels)
-empty  <- vapply(panels, is.null, logical(1))
-labs_  <- ifelse(empty, "", sprintf("(%s)", letters[pmax(cumsum(!empty), 1)]))
-fig_s5 <- plot_grid(plotlist = panels, ncol = 2, labels = labs_, label_size = 18,
-                    label_fontface = "bold", rel_heights = c(6.2, 5.6, 5.6))
-fig_s5 <- ggdraw(fig_s5) + theme(plot.background = element_rect(fill = "white", colour = NA))
-ggsave(file.path(out_dir, "Figure_S5.png"), fig_s5, width = 15, height = 17.4, dpi = 600, bg = "white")
-ggsave(file.path(out_dir, "Figure_S5.pdf"), fig_s5, width = 15, height = 17.4, device = cairo_pdf)
+fig_s1 <- plot_grid(plotlist = sc_panels, ncol = 2, labels = sprintf("(%s)", letters[1:4]),
+                    label_size = 18, label_fontface = "bold")
+fig_s1 <- ggdraw(fig_s1) + theme(plot.background = element_rect(fill = "white", colour = NA))
+ggsave(file.path(out_dir, "Figure_S1.png"), fig_s1, width = 15, height = 11.2, dpi = 600, bg = "white")
+ggsave(file.path(out_dir, "Figure_S1.pdf"), fig_s1, width = 15, height = 11.2, device = cairo_pdf)

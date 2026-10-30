@@ -1,17 +1,19 @@
-# Table S8. Group comparisons of Figures 1-5
+# Table S9. Group comparisons of Figures 1-5
 
 | Panel | Measure | Dataset | Comparison | n | Median (IQR), disease | Median (IQR), control | Cliff's delta | BH-adjusted p |
 |---|---|---|---|---|---|---|---|---|
-| 1a | Pyrimidine score (PT) | Fan DKD bulk RNA-seq | Early DKD vs Normal | 6 / 9 | 10.21 (10.19–10.38) | 10.01 (9.95–10.08) | 1.00 | 0.0008 |
-| 1a | Pyrimidine score (PT) | Fan DKD bulk RNA-seq | Advanced DKD vs Normal | 21 / 9 | 10.12 (9.98–10.15) | 10.01 (9.95–10.08) | 0.38 | 0.114 |
-| 1b | Pyrimidine score (PT) | KPMP scRNA-seq | AKI vs Healthy | 20 / 33 | 0.072 (0.067–0.083) | 0.049 (0.045–0.055) | 0.81 | < 0.0001 |
-| 1b | Pyrimidine score (PT) | KPMP scRNA-seq | CKD vs Healthy | 49 / 33 | 0.067 (0.053–0.071) | 0.049 (0.045–0.055) | 0.52 | < 0.0001 |
-| 1c | Pyrimidine score (PT) | KPMP scRNA-seq, DKD-focused | AKI vs Healthy | 20 / 33 | 0.072 (0.067–0.083) | 0.049 (0.045–0.055) | 0.81 | < 0.0001 |
-| 1c | Pyrimidine score (PT) | KPMP scRNA-seq, DKD-focused | CKD vs Healthy | 19 / 33 | 0.070 (0.067–0.080) | 0.049 (0.045–0.055) | 0.77 | < 0.0001 |
-| 1d | Pyrimidine score (PT) | KPMP snRNA-seq | AKI vs Healthy | 33 / 38 | 0.048 (0.041–0.056) | 0.040 (0.036–0.045) | 0.48 | 0.0009 |
-| 1d | Pyrimidine score (PT) | KPMP snRNA-seq | CKD vs Healthy | 71 / 38 | 0.043 (0.036–0.048) | 0.040 (0.036–0.045) | 0.13 | 0.259 |
-| 1e | Pyrimidine score (PT) | KPMP snRNA-seq, DKD-focused | AKI vs Healthy | 33 / 38 | 0.048 (0.041–0.056) | 0.040 (0.036–0.045) | 0.48 | 0.0009 |
-| 1e | Pyrimidine score (PT) | KPMP snRNA-seq, DKD-focused | CKD vs Healthy | 28 / 38 | 0.044 (0.039–0.050) | 0.040 (0.036–0.045) | 0.25 | 0.081 |
+| 1a | PT marker score | Fan DKD bulk RNA-seq | Early DKD vs Normal | 6 / 9 | 14.24 (14.13–14.36) | 14.14 (14.04–14.22) | 0.33 | 0.328 |
+| 1a | PT marker score | Fan DKD bulk RNA-seq | Advanced DKD vs Normal | 21 / 9 | 13.15 (12.58–13.69) | 14.14 (14.04–14.22) | -0.85 | 0.0001 |
+| 1b | Pyrimidine score (PT) | Fan DKD bulk RNA-seq | Early DKD vs Normal | 6 / 9 | 10.21 (10.19–10.38) | 10.01 (9.95–10.08) | 1.00 | 0.0008 |
+| 1b | Pyrimidine score (PT) | Fan DKD bulk RNA-seq | Advanced DKD vs Normal | 21 / 9 | 10.12 (9.98–10.15) | 10.01 (9.95–10.08) | 0.38 | 0.114 |
+| 1c | Pyrimidine score (PT) | KPMP scRNA-seq | AKI vs Healthy | 20 / 33 | 0.072 (0.067–0.083) | 0.049 (0.045–0.055) | 0.81 | < 0.0001 |
+| 1c | Pyrimidine score (PT) | KPMP scRNA-seq | CKD vs Healthy | 49 / 33 | 0.067 (0.053–0.071) | 0.049 (0.045–0.055) | 0.52 | < 0.0001 |
+| 1d | Pyrimidine score (PT) | KPMP scRNA-seq, DKD-focused | AKI vs Healthy | 20 / 33 | 0.072 (0.067–0.083) | 0.049 (0.045–0.055) | 0.81 | < 0.0001 |
+| 1d | Pyrimidine score (PT) | KPMP scRNA-seq, DKD-focused | CKD vs Healthy | 19 / 33 | 0.070 (0.067–0.080) | 0.049 (0.045–0.055) | 0.77 | < 0.0001 |
+| 1e | Pyrimidine score (PT) | KPMP snRNA-seq | AKI vs Healthy | 33 / 38 | 0.048 (0.041–0.056) | 0.040 (0.036–0.045) | 0.48 | 0.0009 |
+| 1e | Pyrimidine score (PT) | KPMP snRNA-seq | CKD vs Healthy | 71 / 38 | 0.043 (0.036–0.048) | 0.040 (0.036–0.045) | 0.13 | 0.259 |
+| 1f | Pyrimidine score (PT) | KPMP snRNA-seq, DKD-focused | AKI vs Healthy | 33 / 38 | 0.048 (0.041–0.056) | 0.040 (0.036–0.045) | 0.48 | 0.0009 |
+| 1f | Pyrimidine score (PT) | KPMP snRNA-seq, DKD-focused | CKD vs Healthy | 28 / 38 | 0.044 (0.039–0.050) | 0.040 (0.036–0.045) | 0.25 | 0.081 |
 | 2a | P2RY6 | Fan DKD bulk RNA-seq | Early DKD vs Normal | 6 / 9 | 8.763 (8.456–8.782) | 8.512 (8.266–8.783) | 0.19 | 0.607 |
 | 2a | P2RY6 | Fan DKD bulk RNA-seq | Advanced DKD vs Normal | 21 / 9 | 9.424 (9.156–9.715) | 8.512 (8.266–8.783) | 0.83 | 0.0002 |
 | 2b | P2RY6 | KPMP scRNA-seq | AKI vs Healthy | 15 / 36 | 0.000 (0.000–0.014) | 0.000 (0.000–0.009) | 0.04 | 0.781 |

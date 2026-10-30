@@ -1,7 +1,8 @@
 # ============================================================================#
 # S89_Group_Comparisons.R
 # Exact BH-adjusted p-values and effect sizes for all group comparisons of
-# Figures 1-5 (Supplementary Table S8).
+# Figures 1-5 (Supplementary Table S9; Table S8 before the supplements were
+# renumbered in order of citation, Revision 1).
 # Reviewer comments R2.18, R3.05 (Life, life-4655118)
 #
 # The panels are rebuilt from S80_Manuscript_Figures.R (as in S81/S85, no
@@ -30,8 +31,10 @@ s80_file <- "S80_Manuscript_Figures.R"
 out_dir  <- "../04-Outputs/S89_Group_Comparisons"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
-panel_ids <- paste0("f", rep(1:5, each = 5), letters[1:5])
-measure_of <- c("1" = "Pyrimidine score (PT)", "2" = "P2RY6", "3" = "Calcium signaling score",
+# Figure 1 has six panels: (a) bulk PT marker score, (b) bulk pyrimidine score,
+# (c)-(f) KPMP; Figures 2-5 have five panels (a)-(e)
+panel_ids <- c(paste0("f1", letters[1:6]), paste0("f", rep(2:5, each = 5), letters[1:5]))
+measure_of <- c("1" = "Pyrimidine score (PT)", "1a" = "PT marker score", "2" = "P2RY6", "3" = "Calcium signaling score",
                 "4" = "PDGFRB", "5" = "ECM score")
 dataset_of <- c(a = "Fan DKD bulk RNA-seq", b = "KPMP scRNA-seq", c = "KPMP scRNA-seq, DKD-focused",
                 d = "KPMP snRNA-seq", e = "KPMP snRNA-seq, DKD-focused")
@@ -81,10 +84,13 @@ rows <- lapply(panel_ids, function(id) {
   df <- data.frame(g = x, v = y)
   cmp <- lapply(lv[-1], function(l) c(lv[1], l))
   st <- env$bh_test(df, "g", "v", cmp)            # same test and adjustment as the stars
+  fig <- substr(id, 2, 2); let <- substr(id, 3, 3)
+  if (fig == "1") let <- if (let == "a") "a" else chartr("bcdef", "abcde", let)
+  meas <- if (id == "f1a") measure_of[["1a"]] else measure_of[[fig]]
   bind_rows(lapply(seq_along(cmp), function(k) {
     ctl <- y[x == lv[1]]; dis <- y[x == cmp[[k]][2]]
-    data.frame(panel = sub("^f", "", id), measure = measure_of[substr(id, 2, 2)],
-               dataset = dataset_of[substr(id, 3, 3)],
+    data.frame(panel = sub("^f", "", id), measure = meas,
+               dataset = dataset_of[[let]],
                control = cond_map[lv[1]], disease = cond_map[cmp[[k]][2]],
                n_control = length(ctl), n_disease = length(dis),
                median_control = med_iqr(ctl), median_disease = med_iqr(dis),
@@ -111,7 +117,7 @@ md_tab <- tab %>%
             `n` = paste(n_disease, "/", n_control),
             `Median (IQR), disease` = median_disease, `Median (IQR), control` = median_control,
             `Cliff's delta` = sprintf("%.2f", cliffs_delta), `BH-adjusted p` = fmt_p(p_BH))
-md <- c("# Table S8. Group comparisons of Figures 1-5", "",
+md <- c("# Table S9. Group comparisons of Figures 1-5", "",
         paste0("| ", paste(names(md_tab), collapse = " | "), " |"),
         paste0(paste(rep("|---", ncol(md_tab)), collapse = ""), "|"),
         apply(md_tab, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |")))

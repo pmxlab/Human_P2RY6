@@ -336,7 +336,8 @@ logo <- logo_data %>%
   arrange(module, dataset, analysis, factor(group2, levels = condition_levels))
 
 # . 4c. Check: full scores reproduce the stars of the S80 score panels ----
-# S80 panel letters: (b) scRNA all, (c) scRNA DKD, (d) snRNA all, (e) snRNA DKD
+# S80 panel letters: (b) scRNA all, (c) scRNA DKD, (d) snRNA all, (e) snRNA DKD;
+# shifted by one in Figure 1, whose panel (a) is the bulk PT marker score
 fig_no <- c(pyrimidine = 1, calcium = 3, ecm = 5)
 s80 <- read.csv(s80_stars) %>%
   mutate(group2 = recode(group2, "Acute Kidney Injury" = "AKI",
@@ -346,7 +347,9 @@ chk <- logo %>%
   mutate(Panel = paste0(fig_no[as.character(module)],
                         ifelse(dataset == "sc",
                                ifelse(analysis == "All conditions", "b", "c"),
-                               ifelse(analysis == "All conditions", "d", "e")))) %>%
+                               ifelse(analysis == "All conditions", "d", "e"))),
+         Panel = ifelse(module == "pyrimidine",
+                        paste0("1", chartr("bcde", "cdef", substr(Panel, 2, 2))), Panel)) %>%
   inner_join(s80 %>% select(Panel, group2, drawn), by = c("Panel", "group2"))
 stopifnot(nrow(chk) == 24, all(chk$signif == chk$drawn))
 cat("Full scores reproduce the S80 stars of", nrow(chk), "single-cell comparisons.\n")

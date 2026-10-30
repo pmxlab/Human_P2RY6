@@ -43,6 +43,8 @@
 #   - significance stars show Benjamini-Hochberg-adjusted p-values (two-sided
 #     Wilcoxon rank-sum test, adjusted over the comparisons of each panel);
 #     the source scripts showed unadjusted p-values
+#   - correlation panels (Figures 6, S1-S3) show Spearman p-values that are
+#     BH-adjusted over the five panels of each figure (Revision 1, R1.07)
 #   - jitter uses a fixed seed (identical points in PNG and PDF, reproducible)
 #   - long titles/subtitles are wrapped instead of being cut at the panel edge
 #   - extra top margin per panel to make room for the panel label
@@ -117,6 +119,32 @@ spearman_ci <- function(x, y) {
   list(rho = rho, ci_lo = ci[1], ci_hi = ci[2], p = ct$p.value, n = n,
        label = sprintf("rho = %.2f [%.2f, %.2f]\np = %s",
                        rho, ci[1], ci[2], format_p(ct$p.value)))
+}
+
+# Correlation labels with Benjamini-Hochberg-adjusted p-values ----
+# Revision 1 (R1.07): the Spearman p-values of the panels of one correlation
+# figure are BH-adjusted together; the label layer of each panel is rewritten.
+# The same family is used in S85_Correlation_Stats.R (Table S4).
+bh_cor_panels <- function(panels) {
+  is_lab <- function(l) inherits(l$geom, "GeomText") && !is.null(l$aes_params$label)
+  cts <- lapply(panels, function(p) {
+    x <- rlang::eval_tidy(p$mapping$x, p$data); y <- rlang::eval_tidy(p$mapping$y, p$data)
+    spearman_ci(x, y)
+  })
+  p_adj <- p.adjust(vapply(cts, `[[`, numeric(1), "p"), method = "BH")
+  p_txt <- vapply(p_adj, function(p) {
+    f <- format_p(p); if (startsWith(f, "<")) f else paste("=", f)
+  }, character(1))
+  Map(function(p, ct, pt) {
+    i <- which(vapply(p$layers, is_lab, logical(1)))
+    stopifnot(length(i) == 1)
+    p$layers[[i]]$aes_params$label <- if (is.na(ct$ci_lo)) {
+      sprintf("rho = %.2f\nBH-adjusted p %s", ct$rho, pt)
+    } else {
+      sprintf("rho = %.2f [%.2f, %.2f]\nBH-adjusted p %s", ct$rho, ct$ci_lo, ct$ci_hi, pt)
+    }
+    p
+  }, panels, cts, p_txt)
 }
 
 theme_box <- function() {
@@ -662,7 +690,9 @@ f6e <- sc_cor(pb_cross_s62, "pyrim_score", "mean_ecm_score",
               subtitle = sprintf("n = %d matched patients", nrow(pb_cross_s62)),
               drop = FALSE)
 
-save_figure(list(NULL, f6a, f6b, f6c, f6d, f6e), "Figure_6",
+# BH-adjusted p-values over the five panels (R1.07)
+f6_bh <- bh_cor_panels(list(f6a, f6b, f6c, f6d, f6e))
+save_figure(c(list(NULL), f6_bh), "Figure_6",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
@@ -696,7 +726,9 @@ fs1e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_calcium_score",
                subtitle = sprintf("n = %d fibroblast patients", nrow(pb_fib_s62)),
                drop = FALSE)
 
-save_figure(list(NULL, fs1a, fs1b, fs1c, fs1d, fs1e), "Figure_S1",
+# BH-adjusted p-values over the five panels (R1.07)
+fs1_bh <- bh_cor_panels(list(fs1a, fs1b, fs1c, fs1d, fs1e))
+save_figure(c(list(NULL), fs1_bh), "Figure_S1",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
@@ -732,7 +764,9 @@ fs2e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_PDGFRB",
                subtitle = sprintf("n = %d fibroblast patients", nrow(pb_fib_s62)),
                drop = FALSE)
 
-save_figure(list(NULL, fs2a, fs2b, fs2c, fs2d, fs2e), "Figure_S2",
+# BH-adjusted p-values over the five panels (R1.07)
+fs2_bh <- bh_cor_panels(list(fs2a, fs2b, fs2c, fs2d, fs2e))
+save_figure(c(list(NULL), fs2_bh), "Figure_S2",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
@@ -768,7 +802,9 @@ fs3e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_ecm_score",
                subtitle = sprintf("n = %d fibroblast patients", nrow(pb_fib_s62)),
                drop = FALSE)
 
-save_figure(list(NULL, fs3a, fs3b, fs3c, fs3d, fs3e), "Figure_S3",
+# BH-adjusted p-values over the five panels (R1.07)
+fs3_bh <- bh_cor_panels(list(fs3a, fs3b, fs3c, fs3d, fs3e))
+save_figure(c(list(NULL), fs3_bh), "Figure_S3",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 cat("\nS80 complete. Figures saved to:", out_dir, "\n")

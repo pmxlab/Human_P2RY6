@@ -21,8 +21,9 @@
 #   Figure S3  empty     S20        S51        S52        S60        S62      P2RY6 vs ECM (*)
 #
 #   (a) Fan DKD bulk RNA-seq only (Normal, Early DKD, Advanced DKD; values
-#       of S20 without batch correction), placed top right; the top-left
-#       position is left empty. Revision 1 (R1.10, R2.02, R2.03): the KPMP
+#       of S20 without batch correction), centred in the top row (A. Figurek,
+#       after ms_rev1_v32; previously top right with the top left empty).
+#       Revision 1 (R1.10, R2.02, R2.03): the KPMP
 #       bulk data and the ComBat-corrected combined Fan + KPMP panels
 #       (S40-S42) and the PCA figure (former Figure S1) were removed, because
 #       the AKI/CKD profiles of KPMP cannot be compared reliably with the
@@ -205,15 +206,30 @@ tidy_panel <- function(p, subtitle_width = 52) {
 }
 
 # Assemble a 3 x 2 figure, label panels (a)-(e) and save PNG + PDF;
-# NULL entries are empty positions (no panel label).
+# NULL entries are empty positions (no panel label). An empty first position
+# puts panel (a) alone in the centre of the top row.
 save_figure <- function(panels, name, width, heights, ncol = 2) {
   empty  <- vapply(panels, is.null, logical(1))
   labels <- ifelse(empty, "", sprintf("(%s)", letters[pmax(cumsum(!empty), 1)]))
   panels <- lapply(panels, function(p) if (is.null(p)) NULL else tidy_panel(p))
-  fig <- plot_grid(plotlist = panels, ncol = ncol,
-                   labels = labels,
-                   label_size = 18, label_fontface = "bold",
-                   rel_heights = heights)
+  if (empty[1]) {
+    # Empty top-left position: centre panel (a) in the top row, with the
+    # same width as the panels below (A. Figurek, aesthetics)
+    top <- plot_grid(NULL, panels[[2]], NULL, ncol = 3, rel_widths = c(1, 2, 1),
+                     labels = c("", labels[2], ""),
+                     label_size = 18, label_fontface = "bold")
+    bottom <- plot_grid(plotlist = panels[-(1:2)], ncol = ncol,
+                        labels = labels[-(1:2)],
+                        label_size = 18, label_fontface = "bold",
+                        rel_heights = heights[-1])
+    fig <- plot_grid(top, bottom, ncol = 1,
+                     rel_heights = c(heights[1], sum(heights[-1])))
+  } else {
+    fig <- plot_grid(plotlist = panels, ncol = ncol,
+                     labels = labels,
+                     label_size = 18, label_fontface = "bold",
+                     rel_heights = heights)
+  }
   fig <- ggdraw(fig) + theme(plot.background = element_rect(fill = "white", colour = NA))
   h <- sum(heights)
   ggsave(file.path(out_dir, paste0(name, ".png")), fig,
@@ -586,7 +602,7 @@ save_figure(list(f1a, f1b, f1c, f1d, f1e, f1f), "Figure_1",
 # FIGURE 2 — P2RY6 ----
 # ============================================================================#
 
-# (a) S20 (Fan DKD cohort; top right, top left empty)
+# (a) S20 (Fan DKD cohort; centred in the top row)
 f2a <- fan_box("P2RY6", "P2RY6 expression (log2)", "Fan DKD bulk RNA-seq — P2RY6")
 # (b) S50 Fig_FB_P2RY6.png
 #     (Figures.pptx used Fig_FB_P2RY6_pct.png, % P2RY6+ cells; replaced by
@@ -610,7 +626,7 @@ save_figure(list(NULL, f2a, f2b, f2c, f2d, f2e), "Figure_2",
 # FIGURE 3 — Calcium signaling score ----
 # ============================================================================#
 
-# (a) S20 (Fan DKD cohort; top right, top left empty)
+# (a) S20 (Fan DKD cohort; centred in the top row)
 f3a <- fan_box("calcium_score", "Calcium signaling score (log2)",
               "Fan DKD bulk RNA-seq — Calcium score")
 # (b) S50 Fig_FB_calcium.png
@@ -633,7 +649,7 @@ save_figure(list(NULL, f3a, f3b, f3c, f3d, f3e), "Figure_3",
 # FIGURE 4 — PDGFRB ----
 # ============================================================================#
 
-# (a) S20 (Fan DKD cohort; top right, top left empty)
+# (a) S20 (Fan DKD cohort; centred in the top row)
 f4a <- fan_box("PDGFRB", "PDGFRB expression (log2)", "Fan DKD bulk RNA-seq — PDGFRB")
 # (b) S50 Fig_FB_PDGFRB.png
 f4b <- s50_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
@@ -655,7 +671,7 @@ save_figure(list(NULL, f4a, f4b, f4c, f4d, f4e), "Figure_4",
 # FIGURE 5 — ECM score ----
 # ============================================================================#
 
-# (a) S20 (Fan DKD cohort; top right, top left empty)
+# (a) S20 (Fan DKD cohort; centred in the top row)
 f5a <- fan_box("ecm_score", "ECM / fibrotic score (log2)", "Fan DKD bulk RNA-seq — ECM score")
 # (b) S50 Fig_FB_ECM.png
 f5b <- s50_fib_box("mean_ecm_score", "ECM score (mean expression)",
@@ -677,7 +693,7 @@ save_figure(list(NULL, f5a, f5b, f5c, f5d, f5e), "Figure_5",
 # FIGURE 6 — PT pyrimidine score vs ECM score ----
 # ============================================================================#
 
-# (a) S20 (Fan DKD cohort; top right, top left empty)
+# (a) S20 (Fan DKD cohort; centred in the top row)
 f6a <- fan_scatter("pyrim_score", "ecm_score", "Pyrimidine score", "ECM score",
                   "Fan DKD bulk RNA-seq — Pyrimidine vs ECM")
 # (b) S50 Fig_Cor_PT_Pyrimidine_vs_FB_ECM.png
@@ -713,7 +729,7 @@ save_figure(c(list(NULL), f6_bh), "Figure_6",
 # SUPPLEMENTARY FIGURE S1 — P2RY6 vs Calcium score ----
 # ============================================================================#
 
-# (a) S20 (Fan DKD cohort; top right, top left empty)
+# (a) S20 (Fan DKD cohort; centred in the top row)
 fs1a <- fan_scatter("P2RY6", "calcium_score", "P2RY6 (log2)", "Calcium score",
                    "Fan DKD bulk RNA-seq — P2RY6 vs Calcium")
 # (b) S51 Fig_Cor_FB_P2RY6_vs_Calcium.png
@@ -751,7 +767,7 @@ save_figure(c(list(NULL), fs1_bh), "Figure_S1",
 # Axes swapped relative to the source panels (P2RY6 on x, PDGFRB on y), as in
 # Figures S1 and S3. Spearman rho is symmetric; only the linear fit line changes.
 
-# (a) S20 (Fan DKD cohort; top right, top left empty)
+# (a) S20 (Fan DKD cohort; centred in the top row)
 fs2a <- fan_scatter("P2RY6", "PDGFRB", "P2RY6 (log2)", "PDGFRB (log2)",
                    "Fan DKD bulk RNA-seq — P2RY6 vs PDGFRB")
 # (b) S51 Fig_Cor_FB_PDGFRB_vs_P2RY6.png
@@ -789,7 +805,7 @@ save_figure(c(list(NULL), fs2_bh), "Figure_S2",
 # Not present in Figures.pptx (slide duplicated Suppl. Figure 2); assembled
 # from the P2RY6 vs ECM outputs following the layout of Figures S1-S2.
 
-# (a) S20 (Fan DKD cohort; top right, top left empty)
+# (a) S20 (Fan DKD cohort; centred in the top row)
 fs3a <- fan_scatter("P2RY6", "ecm_score", "P2RY6 (log2)", "ECM score",
                    "Fan DKD bulk RNA-seq — P2RY6 vs ECM")
 # (b) S51 Fig_Cor_FB_P2RY6_vs_ECM.png

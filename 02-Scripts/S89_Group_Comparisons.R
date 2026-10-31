@@ -1,8 +1,11 @@
 # ============================================================================#
 # S89_Group_Comparisons.R
 # Exact BH-adjusted p-values and effect sizes for all group comparisons of
-# Figures 1-5 (Supplementary Table S9; Table S8 before the supplements were
-# renumbered in order of citation, Revision 1).
+# Figures 1-5 and Supplementary Figures S2, S3, S5 and S7 (Supplementary
+# Table S9; Table S8 before the supplements were renumbered in order of
+# citation, Revision 1). Revision 1 (ms_rev1_v42_AF): panels (a)-(c) of the
+# former Figures 2-5 are Supplementary Figures S2, S3, S5 and S7, and panels
+# (d, e) are Figures 2-5 (a, b); column 'label' gives the manuscript panel.
 # Reviewer comments R2.18, R3.05 (Life, life-4655118)
 #
 # The panels are rebuilt from S80_Manuscript_Figures.R (as in S81/S85, no
@@ -74,6 +77,14 @@ stopifnot(all(panel_ids %in% ls(env)))
 # 2. COMPARISONS PER PANEL ----
 # ============================================================================#
 
+# manuscript panel labels (Revision 1, ms_rev1_v42_AF)
+supp_of <- c("2" = "S2", "3" = "S3", "4" = "S5", "5" = "S7")
+panel_label <- function(id) {
+  fig <- substr(id, 2, 2); let <- substr(id, 3, 3)
+  if (fig == "1") return(paste0("1", if (let == "a") "a" else chartr("bcdef", "abcde", let)))
+  if (let %in% c("a", "b", "c")) paste0(supp_of[[fig]], let) else paste0(fig, chartr("de", "ab", let))
+}
+
 rows <- lapply(panel_ids, function(id) {
   p <- get(id, envir = env)
   d <- p$data
@@ -89,7 +100,7 @@ rows <- lapply(panel_ids, function(id) {
   meas <- if (id == "f1a") measure_of[["1a"]] else measure_of[[fig]]
   bind_rows(lapply(seq_along(cmp), function(k) {
     ctl <- y[x == lv[1]]; dis <- y[x == cmp[[k]][2]]
-    data.frame(panel = sub("^f", "", id), measure = meas,
+    data.frame(panel = sub("^f", "", id), label = panel_label(id), measure = meas,
                dataset = dataset_of[[let]],
                control = cond_map[lv[1]], disease = cond_map[cmp[[k]][2]],
                n_control = length(ctl), n_disease = length(dis),
@@ -112,12 +123,12 @@ write.csv(tab, file.path(out_dir, "Table_S8_group_comparisons.csv"), row.names =
 
 fmt_p <- function(p) ifelse(p < 1e-4, "< 0.0001", ifelse(p < 0.01, sprintf("%.4f", p), sprintf("%.3f", p)))
 md_tab <- tab %>%
-  transmute(Panel = panel, Measure = measure, Dataset = dataset,
+  transmute(Panel = label, Measure = measure, Dataset = dataset,
             Comparison = paste(disease, "vs", control),
             `n` = paste(n_disease, "/", n_control),
             `Median (IQR), disease` = median_disease, `Median (IQR), control` = median_control,
             `Cliff's delta` = sprintf("%.2f", cliffs_delta), `BH-adjusted p` = fmt_p(p_BH))
-md <- c("# Table S9. Group comparisons of Figures 1-5", "",
+md <- c("# Table S9. Group comparisons of Figures 1-5 and Supplementary Figures S2, S3, S5 and S7", "",
         paste0("| ", paste(names(md_tab), collapse = " | "), " |"),
         paste0(paste(rep("|---", ncol(md_tab)), collapse = ""), "|"),
         apply(md_tab, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |")))

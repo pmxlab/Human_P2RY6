@@ -2,6 +2,10 @@
 # S83_P2RY6_Stromal_CellTypes.R
 # Consistency check of P2RY6 between KPMP scRNA-seq and snRNA-seq for the same
 # stromal cell types (reviewer comment R1.04).
+# Revision 1 (ms_rev1_v42_AF): the former Figure 2b and 2d named in the cell
+# set labels below are Supplementary Figure S2b and Figure 2a of the
+# manuscript; the labels are kept because they are stored in S83_pseudobulk.rds
+# (Table S4 of the supplement uses the new numbers).
 #
 # The scRNA-seq "stroma cells" class (Figure 2b) is ~82% VSMC/P and ~18%
 # fibroblasts (subtypes MYOF and pvFIB only); the snRNA-seq fibroblast subclass

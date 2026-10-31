@@ -41,6 +41,23 @@
 #   Supplementary figures were renumbered in order of their citation in the
 #   Results (same revision): Figures S1, S2, S3 of this script are Figures
 #   S2, S3, S4 of the manuscript; the output file names are unchanged.
+#   Revision 1 (comments of A. Figurek on ms_rev1_v42_AF): Figures 2-5 keep
+#   only the snRNA-seq fibroblast panels (d, e -> a, b); their bulk and
+#   scRNA-seq panels (a-c) form new Supplementary Figures S2, S3, S5 and S7.
+#   The former Figure 6 is Supplementary Figure S10, and the new Figure 6 shows
+#   the within-AKI and within-CKD correlations of its snRNA-seq panel (S10d).
+#   With the new figures, the supplementary figures are renumbered in order of
+#   citation, and the output files are named by the manuscript numbers:
+#     Figure_S2  bulk/scRNA-seq P2RY6        (former Figure 2a-c)
+#     Figure_S3  bulk/scRNA-seq calcium      (former Figure 3a-c)
+#     Figure_S4  P2RY6 vs calcium            (fs1; former Figure S2, file Figure_S1)
+#     Figure_S5  bulk/scRNA-seq PDGFRB       (former Figure 4a-c)
+#     Figure_S6  P2RY6 vs PDGFRB             (fs2; former Figure S3, file Figure_S2)
+#     Figure_S7  bulk/scRNA-seq ECM          (former Figure 5a-c)
+#     Figure_S8  P2RY6 vs ECM                (fs3; former Figure S4, file Figure_S3)
+#     Figure_S10 PT pyrimidine vs ECM        (f6a-f6e; former Figure 6)
+#   Figures S1 and S9 come from S86 and S84. The panel objects keep their names
+#   (f2a-f2e, ..., f6a-f6e, fs1a-fs3e), which S81, S85 and S89 use.
 #   (**) Axes swapped relative to S50-S62 (P2RY6 on x, PDGFRB on y) so that
 #       P2RY6 is on the x-axis in all supplementary correlation figures.
 #
@@ -57,7 +74,8 @@
 #   - long titles/subtitles are wrapped instead of being cut at the panel edge
 #   - extra top margin per panel to make room for the panel label
 #
-# Outputs: 04-Outputs/S80_Manuscript_Figures/Figure_<n>.png / .pdf
+# Outputs: 04-Outputs/S80_Manuscript_Figures/Figure_<n>.png / .pdf (manuscript
+#          numbers: Figures 1-6 and Supplementary Figures S2-S8, S10)
 # ============================================================================#
 
 rm(list = ls())
@@ -626,7 +644,7 @@ save_figure(list(f1a, f1b, f1c, f1d, f1e, f1f), "Figure_1",
             width = 15, heights = c(6.2, 5.6, 5.6))
 
 # ============================================================================#
-# FIGURE 2 — P2RY6 ----
+# FIGURE 2 AND SUPPLEMENTARY FIGURE S2 — P2RY6 ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -646,11 +664,15 @@ f2d <- s60_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
 f2e <- s62_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
                    "KPMP snRNA (DKD-focused) — P2RY6 in fibroblasts")
 
-save_figure(list(NULL, f2a, f2b, f2c, f2d, f2e), "Figure_2",
-            width = 15, heights = c(6.2, 5.6, 5.6))
+# Revision 1 (A. Figurek, ms_rev1_v42_AF): main figure = snRNA-seq fibroblast
+# panels (d, e -> a, b); bulk and scRNA-seq panels (a-c) -> Figure S2
+save_figure(list(f2d, f2e), "Figure_2",
+            width = 15, heights = 5.6)
+save_figure(list(NULL, f2a, f2b, f2c), "Figure_S2",
+            width = 15, heights = c(6.2, 5.6))
 
 # ============================================================================#
-# FIGURE 3 — Calcium signaling score ----
+# FIGURE 3 AND SUPPLEMENTARY FIGURE S3 — Calcium signaling score ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -669,11 +691,15 @@ f3d <- s60_fib_box("mean_calcium_score", "Calcium signaling score (mean expressi
 f3e <- s62_fib_box("mean_calcium_score", "Calcium signaling score (mean expression)",
                    "KPMP snRNA (DKD-focused) — Calcium score in FBs")
 
-save_figure(list(NULL, f3a, f3b, f3c, f3d, f3e), "Figure_3",
-            width = 15, heights = c(6.2, 5.6, 5.6))
+# Revision 1 (A. Figurek, ms_rev1_v42_AF): main figure = snRNA-seq fibroblast
+# panels (d, e -> a, b); bulk and scRNA-seq panels (a-c) -> Figure S3
+save_figure(list(f3d, f3e), "Figure_3",
+            width = 15, heights = 5.6)
+save_figure(list(NULL, f3a, f3b, f3c), "Figure_S3",
+            width = 15, heights = c(6.2, 5.6))
 
 # ============================================================================#
-# FIGURE 4 — PDGFRB ----
+# FIGURE 4 AND SUPPLEMENTARY FIGURE S5 — PDGFRB ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -691,11 +717,15 @@ f4d <- s60_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
 f4e <- s62_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
                    "KPMP snRNA (DKD-focused) — PDGFRB in fibroblasts")
 
-save_figure(list(NULL, f4a, f4b, f4c, f4d, f4e), "Figure_4",
-            width = 15, heights = c(6.2, 5.6, 5.6))
+# Revision 1 (A. Figurek, ms_rev1_v42_AF): main figure = snRNA-seq fibroblast
+# panels (d, e -> a, b); bulk and scRNA-seq panels (a-c) -> Figure S5
+save_figure(list(f4d, f4e), "Figure_4",
+            width = 15, heights = 5.6)
+save_figure(list(NULL, f4a, f4b, f4c), "Figure_S5",
+            width = 15, heights = c(6.2, 5.6))
 
 # ============================================================================#
-# FIGURE 5 — ECM score ----
+# FIGURE 5 AND SUPPLEMENTARY FIGURE S7 — ECM score ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -713,11 +743,15 @@ f5d <- s60_fib_box("mean_ecm_score", "ECM score (mean expression)",
 f5e <- s62_fib_box("mean_ecm_score", "ECM score (mean expression)",
                    "KPMP snRNA (DKD-focused) — ECM score in FBs")
 
-save_figure(list(NULL, f5a, f5b, f5c, f5d, f5e), "Figure_5",
-            width = 15, heights = c(6.2, 5.6, 5.6))
+# Revision 1 (A. Figurek, ms_rev1_v42_AF): main figure = snRNA-seq fibroblast
+# panels (d, e -> a, b); bulk and scRNA-seq panels (a-c) -> Figure S7
+save_figure(list(f5d, f5e), "Figure_5",
+            width = 15, heights = 5.6)
+save_figure(list(NULL, f5a, f5b, f5c), "Figure_S7",
+            width = 15, heights = c(6.2, 5.6))
 
 # ============================================================================#
-# FIGURE 6 — PT pyrimidine score vs ECM score ----
+# SUPPLEMENTARY FIGURE S10 (former Figure 6) — PT pyrimidine score vs ECM score ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -748,12 +782,65 @@ f6e <- sc_cor(pb_cross_s62, "pyrim_score", "mean_ecm_score",
               drop = FALSE)
 
 # BH-adjusted p-values over the five panels (R1.07)
+# Revision 1 (A. Figurek, ms_rev1_v42_AF): former Figure 6 -> Figure S10
 f6_bh <- bh_cor_panels(list(f6a, f6b, f6c, f6d, f6e))
-save_figure(c(list(NULL), f6_bh), "Figure_6",
+save_figure(c(list(NULL), f6_bh), "Figure_S10",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
-# SUPPLEMENTARY FIGURE S1 — P2RY6 vs Calcium score ----
+# FIGURE 6 — PT pyrimidine vs FB ECM within AKI and within CKD (snRNA-seq) ----
+# ============================================================================#
+# Revision 1 (A. Figurek, ms_rev1_v42_AF): the within-condition correlations
+# of Figure S10d (snRNA-seq, all conditions). As in Table S6 (S85), the
+# p-values are BH-adjusted over all within-condition correlations (n >= 5) of
+# the five panels of Figure S10; both panels use the same axis ranges.
+
+within_bh <- function(panels, min_n = 5) {
+  bind_rows(lapply(seq_along(panels), function(i) {
+    p <- panels[[i]]; d <- p$data
+    x <- rlang::eval_tidy(p$mapping$x, d); y <- rlang::eval_tidy(p$mapping$y, d)
+    cond_col <- intersect(c("condition", "EnrollmentCategory", "enrollment"), names(d))[1]
+    keep <- !is.na(x) & !is.na(y)
+    dd <- data.frame(x = x[keep], y = y[keep], g = as.character(d[[cond_col]][keep]))
+    bind_rows(lapply(split(dd, dd$g), function(s) {
+      if (nrow(s) < min_n) return(NULL)
+      ct <- spearman_ci(s$x, s$y)
+      data.frame(panel = i, condition = s$g[1], n = ct$n, rho = ct$rho,
+                 ci_lo = ct$ci_lo, ci_hi = ct$ci_hi, p = ct$p)
+    }))
+  })) %>% mutate(p_bh = p.adjust(p, method = "BH"))
+}
+w_s10 <- within_bh(list(f6a, f6b, f6c, f6d, f6e))
+
+f6_within <- pb_cross_s60 %>% filter(enrollment %in% c("AKI", "CKD"))
+f6_xlim <- range(f6_within$pyrim_score)
+f6_ylim <- range(f6_within$mean_ecm_score)
+f6_ylim <- f6_ylim + c(-0.05, 0.22) * diff(f6_ylim)
+
+within_cor_panel <- function(cond) {
+  df <- filter(f6_within, enrollment == cond)
+  r  <- filter(w_s10, panel == 4, condition == cond)
+  stopifnot(nrow(r) == 1, r$n == nrow(df))
+  pt <- format_p_s6(r$p_bh); if (!startsWith(pt, "<")) pt <- paste("=", pt)
+  ggplot(df, aes(x = pyrim_score, y = mean_ecm_score)) +
+    geom_point(size = 2.8, alpha = 0.85, color = s60_set$condition_colors[[cond]]) +
+    geom_smooth(method = "lm", se = FALSE, color = "black", linewidth = 0.8) +
+    annotate("text", x = Inf, y = Inf, hjust = 1.05, vjust = 1.2, size = 3.8,
+             label = sprintf("rho = %.2f [%.2f, %.2f]\nBH-adjusted p %s",
+                             r$rho, r$ci_lo, r$ci_hi, pt)) +
+    coord_cartesian(xlim = f6_xlim, ylim = f6_ylim) +
+    labs(x = "PT pyrimidine score (pseudobulk)", y = "FB ECM score (pseudobulk)",
+         title = sprintf("KPMP snRNA — %s: PT pyrimidine vs FB ECM", cond),
+         subtitle = sprintf("n = %d matched patients", nrow(df))) +
+    theme_bw(base_size = 13) +
+    theme(plot.title = element_text(face = "bold"))
+}
+fig6_aki <- within_cor_panel("AKI")
+fig6_ckd <- within_cor_panel("CKD")
+save_figure(list(fig6_aki, fig6_ckd), "Figure_6", width = 13, heights = 5.6)
+
+# ============================================================================#
+# SUPPLEMENTARY FIGURE S4 (fs1) — P2RY6 vs Calcium score ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -785,11 +872,11 @@ fs1e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_calcium_score",
 
 # BH-adjusted p-values over the five panels (R1.07)
 fs1_bh <- bh_cor_panels(list(fs1a, fs1b, fs1c, fs1d, fs1e))
-save_figure(c(list(NULL), fs1_bh), "Figure_S1",
+save_figure(c(list(NULL), fs1_bh), "Figure_S4",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
-# SUPPLEMENTARY FIGURE S2 — P2RY6 vs PDGFRB ----
+# SUPPLEMENTARY FIGURE S6 (fs2) — P2RY6 vs PDGFRB ----
 # ============================================================================#
 # Axes swapped relative to the source panels (P2RY6 on x, PDGFRB on y), as in
 # Figures S1 and S3. Spearman rho is symmetric; only the linear fit line changes.
@@ -823,11 +910,11 @@ fs2e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_PDGFRB",
 
 # BH-adjusted p-values over the five panels (R1.07)
 fs2_bh <- bh_cor_panels(list(fs2a, fs2b, fs2c, fs2d, fs2e))
-save_figure(c(list(NULL), fs2_bh), "Figure_S2",
+save_figure(c(list(NULL), fs2_bh), "Figure_S6",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
-# SUPPLEMENTARY FIGURE S3 — P2RY6 vs ECM score ----
+# SUPPLEMENTARY FIGURE S8 (fs3) — P2RY6 vs ECM score ----
 # ============================================================================#
 # Not present in Figures.pptx (slide duplicated Suppl. Figure 2); assembled
 # from the P2RY6 vs ECM outputs following the layout of Figures S1-S2.
@@ -861,7 +948,7 @@ fs3e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_ecm_score",
 
 # BH-adjusted p-values over the five panels (R1.07)
 fs3_bh <- bh_cor_panels(list(fs3a, fs3b, fs3c, fs3d, fs3e))
-save_figure(c(list(NULL), fs3_bh), "Figure_S3",
+save_figure(c(list(NULL), fs3_bh), "Figure_S8",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 cat("\nS80 complete. Figures saved to:", out_dir, "\n")

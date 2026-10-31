@@ -1,7 +1,8 @@
 # ============================================================================#
 # S82_P2RY6_Detection.R
 # Supplementary Table S1: detection of P2RY6 in the stromal (KPMP scRNA-seq)
-# and fibroblast (KPMP snRNA-seq) pseudobulk profiles shown in Figure 2b-e
+# and fibroblast (KPMP snRNA-seq) pseudobulk profiles shown in Supplementary
+# Figure S2b, c (former Figure 2b, c) and Figure 2a, b (former Figure 2d, e)
 # (reviewer comment R1.04).
 #
 # Per dataset and group: participants, cells/nuclei per participant, share
@@ -56,13 +57,13 @@ dkd_only <- function(df) filter(df, !(condition == "CKD" & adjudicated != "Diabe
 # only the CKD group differs, so CKD (DKD only) is added as a separate row.
 sets <- list(
   list(data = sc,                                  dataset = "scRNA-seq", compartment = "Stroma",
-       figure = c(Healthy = "2b, 2c", AKI = "2b, 2c", CKD = "2b")),
+       figure = c(Healthy = "S2b, S2c", AKI = "S2b, S2c", CKD = "S2b")),
   list(data = dkd_only(sc) %>% filter(condition == "CKD") %>% mutate(condition = "CKD (DKD only)"),
-       dataset = "scRNA-seq", compartment = "Stroma", figure = c("CKD (DKD only)" = "2c")),
+       dataset = "scRNA-seq", compartment = "Stroma", figure = c("CKD (DKD only)" = "S2c")),
   list(data = sn,                                  dataset = "snRNA-seq", compartment = "Fibroblasts",
-       figure = c(Healthy = "2d, 2e", AKI = "2d, 2e", CKD = "2d")),
+       figure = c(Healthy = "2a, 2b", AKI = "2a, 2b", CKD = "2a")),
   list(data = dkd_only(sn) %>% filter(condition == "CKD") %>% mutate(condition = "CKD (DKD only)"),
-       dataset = "snRNA-seq", compartment = "Fibroblasts", figure = c("CKD (DKD only)" = "2e"))
+       dataset = "snRNA-seq", compartment = "Fibroblasts", figure = c("CKD (DKD only)" = "2b"))
 )
 
 # ============================================================================#

@@ -1,11 +1,13 @@
 # ============================================================================#
 # S85_Correlation_Stats.R
 # Correlation statistics for all correlation panels of the manuscript
-# (Figure 6 and Supplementary Figures S2-S4): pooled, adjusted for condition
+# (Supplementary Figures S4, S6, S8 and S10; Figure 6): pooled, adjusted for condition
 # and within condition, with multiple-testing correction.
 # Figures and tables are labelled with the manuscript numbering (Revision 1,
-# after ms_rev1_v32): the supplementary figures fs1-fs3 of S80 are Figures
-# S2-S4, and the compact table is Table S6; the output file names are unchanged.
+# after ms_rev1_v42_AF): the correlation figures f6 and fs1-fs3 of S80 are
+# Supplementary Figures S10 (former Figure 6), S4, S6 and S8 (former S2-S4),
+# and the compact table is Table S6; the output file names are unchanged.
+# The new Figure 6 shows the within-AKI and within-CKD rows of panel S10d.
 # Reviewer comments R1.07, R2.04, R2.07 (Life, life-4655118)
 #
 # The panels are rebuilt from S80_Manuscript_Figures.R (as in S81, no files
@@ -50,10 +52,10 @@ min_n_within <- 5
 
 panel_ids <- c(paste0("f6", letters[1:5]), paste0("fs", rep(1:3, each = 5), letters[1:5]))
 
-pairs <- c("6"  = "PT pyrimidine score vs ECM score",
-           "S2" = "P2RY6 vs calcium score",
-           "S3" = "P2RY6 vs PDGFRB",
-           "S4" = "P2RY6 vs ECM score")
+pairs <- c("S10" = "PT pyrimidine score vs ECM score",
+           "S4"  = "P2RY6 vs calcium score",
+           "S6"  = "P2RY6 vs PDGFRB",
+           "S8"  = "P2RY6 vs ECM score")
 
 dataset_of <- c(a = "Fan DKD bulk RNA-seq", b = "KPMP scRNA-seq", c = "KPMP scRNA-seq",
                 d = "KPMP snRNA-seq", e = "KPMP snRNA-seq")
@@ -128,8 +130,8 @@ panel_data <- function(id) {
 # ============================================================================#
 
 res <- bind_rows(lapply(panel_ids, function(id) {
-  # S80 fs1-fs3 -> manuscript Figures S2-S4
-  fig    <- if (startsWith(id, "fs")) paste0("S", as.integer(substr(id, 3, 3)) + 1) else substr(id, 2, 2)
+  # S80 f6 -> Figure S10; fs1-fs3 -> Figures S4, S6, S8
+  fig    <- if (startsWith(id, "fs")) c("S4", "S6", "S8")[as.integer(substr(id, 3, 3))] else "S10"
   letter <- sub(".*([a-e])$", "\\1", id)
   d <- panel_data(id)
   meta <- data.frame(figure = fig, panel = paste0(fig, letter), pair = pairs[[fig]],
@@ -146,7 +148,7 @@ res <- bind_rows(lapply(panel_ids, function(id) {
 
 # . Section 3.6: PT pyrimidine score vs stromal / fibroblast P2RY6 ----
 # Revision 1 (AIReview1 B6, comments R1.03 / R3.02): the null result of
-# Section 3.6 is added to Table S6. Same matched participants as Figure 6b-e
+# Section 3.6 is added to Table S6. Same matched participants as Figure S10b-e
 # (pb_cross); its own BH family (figure "3.6").
 res_p2ry6 <- bind_rows(lapply(c("b", "c", "d", "e"), function(letter) {
   p <- get(paste0("f6", letter), envir = env); d0 <- p$data
@@ -154,7 +156,7 @@ res_p2ry6 <- bind_rows(lapply(c("b", "c", "d", "e"), function(letter) {
   d <- data.frame(x = d0$pyrim_score, y = d0$mean_P2RY6,
                   condition = unname(cond_map[as.character(d0[[cond_col]])]))
   d <- d[!is.na(d$x) & !is.na(d$y), ]
-  meta <- data.frame(figure = "3.6", panel = paste0("3.6 (as 6", letter, ")"),
+  meta <- data.frame(figure = "3.6", panel = paste0("3.6 (as S10", letter, ")"),
                      pair = if (letter %in% c("b", "c")) "PT pyrimidine score vs stroma P2RY6"
                             else "PT pyrimidine score vs fibroblast P2RY6",
                      dataset = dataset_of[[letter]], analysis = analysis_of[[letter]])
@@ -184,6 +186,13 @@ chk <- sapply(panel_ids, function(id) {
   d <- panel_data(id); env$spearman_ci(d$x, d$y)$rho
 })
 stopifnot(isTRUE(all.equal(unname(chk), res$rho[res$type == "pooled" & res$figure != "3.6"])))
+
+# check: Figure 6 (within AKI and within CKD of panel S10d) shows the same
+# rho and BH-adjusted p-values as Table S6
+w_tab <- res %>% filter(panel == "S10d", type == "within condition", condition %in% c("AKI", "CKD")) %>%
+  arrange(as.character(condition))
+w_fig <- env$w_s10 %>% filter(panel == 4, condition %in% c("AKI", "CKD")) %>% arrange(condition)
+stopifnot(isTRUE(all.equal(w_tab$rho, w_fig$rho)), isTRUE(all.equal(w_tab$p_BH, w_fig$p_bh)))
 
 write.csv(res, file.path(out_dir, "Table_correlations_all.csv"), row.names = FALSE)
 

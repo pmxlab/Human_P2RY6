@@ -9,6 +9,8 @@
 # CKD (DKD): CKD participants with an adjudicated diagnosis of DKD.
 # Characteristics (KPMP open-access clinical data, 2025-12-05): sex, age (only
 # available in 10-year bins), baseline eGFR, diabetes and hypertension history.
+# Revision 1 (AIReview1 B4, comments R2.03 / R2.17): tissue source (KPMP
+# 'Sample Type', grouped into five categories) added.
 # Each characteristic is summarized over the participants with a value and
 # the number with a value is given; no tests (descriptive table).
 #
@@ -36,6 +38,17 @@ grp_lab <- c("Healthy Reference Tissue" = "Healthy", "Acute Kidney Injury" = "AK
              "Chronic Kidney Disease" = "CKD", "Healthy Reference" = "Healthy", "AKI" = "AKI",
              "CKD" = "CKD")
 cols <- c("Healthy", "AKI", "CKD", "CKD (DKD)")
+# KPMP 'Sample Type' -> tissue source categories
+tissue_map <- c("Percutaneous Needle Biopsy"      = "needle biopsy (percutaneous or intra-operative)",
+                "Intra-operative Needle Biopsy"   = "needle biopsy (percutaneous or intra-operative)",
+                "Transplant Pre-perfusion Biopsy" = "transplant donor biopsy (pre-perfusion or surveillance)",
+                "Transplant Surveillance Biopsy"  = "transplant donor biopsy (pre-perfusion or surveillance)",
+                "Intra-operative Biopsy"          = "intra-operative biopsy",
+                "Tumor Nephrectomy"               = "tumor nephrectomy",
+                "Total Tumor Nephrectomy"         = "tumor nephrectomy",
+                "Partial Tumor Nephrectomy"       = "tumor nephrectomy",
+                "Deceased Donor Nephrectomy"      = "deceased-donor nephrectomy")
+tissue_levels <- unique(unname(tissue_map))
 missing_vals <- c("", "Unknown", "unknown", "Don't know", NA)
 
 # ============================================================================#
@@ -59,20 +72,22 @@ med_iqr <- function(x) {
 age_low <- function(x) suppressWarnings(as.numeric(sub("-.*", "", x)))
 
 characteristics <- function(d) {
-  d <- d %>% mutate(across(c(sex, age, diab, htn), ~ ifelse(.x %in% missing_vals, NA, .x)))
+  d <- d %>% mutate(across(c(sex, age, diab, htn, tissue), ~ ifelse(.x %in% missing_vals, NA, .x)))
   a <- age_low(d$age)
   tibble(
     measure = c("Participants, n", "With KPMP clinical data, n", "Female, n (%)",
                 "Age < 40 years, n (%)", "Age 40–59 years, n (%)", "Age ≥ 60 years, n (%)",
                 "Baseline eGFR, mL/min/1.73 m², median (IQR)", "Diabetes, n (%)",
-                "Hypertension, n (%)"),
+                "Hypertension, n (%)", paste0("Tissue: ", tissue_levels, ", n (%)")),
     value = c(nrow(d), sum(d$in_clin), n_pct(d$sex, "Female"),
               n_pct(cut(a, c(-Inf, 40, 60, Inf), right = FALSE, labels = 1:3), 1),
               n_pct(cut(a, c(-Inf, 40, 60, Inf), right = FALSE, labels = 1:3), 2),
               n_pct(cut(a, c(-Inf, 40, 60, Inf), right = FALSE, labels = 1:3), 3),
-              med_iqr(d$egfr), n_pct(d$diab, "Yes"), n_pct(d$htn, "Yes")),
+              med_iqr(d$egfr), n_pct(d$diab, "Yes"), n_pct(d$htn, "Yes"),
+              vapply(tissue_levels, function(l) n_pct(d$tissue, l), character(1))),
     n_with = c(NA, NA, sum(!is.na(d$sex)), rep(sum(!is.na(a)), 3), sum(!is.na(d$egfr)),
-               sum(!is.na(d$diab)), sum(!is.na(d$htn))))
+               sum(!is.na(d$diab)), sum(!is.na(d$htn)),
+               rep(sum(!is.na(d$tissue)), length(tissue_levels))))
 }
 
 # ============================================================================#
@@ -96,7 +111,8 @@ clin <- bind_rows(
   read.csv(sn_clin, check.names = FALSE) %>% mutate(dataset = "snRNA-seq")) %>%
   transmute(dataset, id = `Participant ID`, adjudicated = `Primary Adjudicated Category`,
             sex = Sex, age = `Age (Years) (Binned)`, egfr = `Baseline eGFR (ml/min/1.73m2)`,
-            diab = `Diabetes History`, htn = `Hypertension History`, found = TRUE)
+            diab = `Diabetes History`, htn = `Hypertension History`,
+            tissue = unname(tissue_map[`Sample Type`]), found = TRUE)
 
 dat <- parts %>%
   left_join(clin, by = c("dataset", "id")) %>%

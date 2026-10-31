@@ -107,6 +107,28 @@ format_p <- function(p) {
   sprintf("%.3f", p)
 }
 
+# Revision 1 (AIReview1 D6): p-values of the correlation labels in the same
+# format as Table S6 (S85 fmt_p): < 0.0001; 2 significant digits below 0.01;
+# otherwise 2 decimals.
+format_p_s6 <- function(p) {
+  if (is.na(p)) return("NA")
+  if (p < 1e-4) return("< 0.0001")
+  if (p < 0.01) return(sprintf("%.2g", p))
+  sprintf("%.2f", p)
+}
+
+# Revision 1 (AIReview1 D6): the same short group labels (Healthy, AKI, CKD)
+# in the legends of the correlation figures as on the axes of Figures 1-5.
+legend_short <- c("Healthy Reference Tissue" = "Healthy", "Healthy Reference" = "Healthy",
+                  "Acute Kidney Injury" = "AKI", "Chronic Kidney Disease" = "CKD")
+short_labels <- function(x) {
+  x <- as.character(x)
+  ifelse(x %in% names(legend_short), unname(legend_short[x]), x)
+}
+
+# Revision 1 (AIReview1 D6): headroom above the data for the correlation label
+cor_y_expand <- ggplot2::expansion(mult = c(0.05, 0.22))
+
 # NA-safe version (S50/S51/S52/S62); gives identical results to the
 # version without NA handling on complete data.
 spearman_ci <- function(x, y) {
@@ -144,7 +166,7 @@ bh_cor_panels <- function(panels) {
   })
   p_adj <- p.adjust(vapply(cts, `[[`, numeric(1), "p"), method = "BH")
   p_txt <- vapply(p_adj, function(p) {
-    f <- format_p(p); if (startsWith(f, "<")) f else paste("=", f)
+    f <- format_p_s6(p); if (startsWith(f, "<")) f else paste("=", f)
   }, character(1))
   Map(function(p, ct, pt) {
     i <- which(vapply(p$layers, is_lab, logical(1)))
@@ -362,6 +384,7 @@ fan_scatter <- function(x_col, y_col, x_label, y_label, title_str,
                        labels = setNames(S$condition_labels, S$condition_levels)) +
     annotate("text", x = Inf, y = Inf,
              label = ct$label, hjust = 1.05, vjust = 1.2, size = 3.8) +
+    scale_y_continuous(expand = cor_y_expand) +
     labs(x = x_label, y = y_label, title = title_str, subtitle = S$subtitle_n) +
     theme_bw(base_size = 13) +
     theme(plot.title = element_text(face = "bold"), legend.position = "right")
@@ -435,7 +458,8 @@ sc_cor <- function(df, x_col, y_col, x_lab, y_lab, title_str, colors,
                 inherit.aes = FALSE, aes(x = .data[[x_col]], y = .data[[y_col]])) +
     annotate("text", x = Inf, y = Inf,
              label = ct$label, hjust = 1.05, vjust = 1.2, size = 3.8) +
-    scale_color_manual(values = colors, name = NULL, drop = drop) +
+    scale_color_manual(values = colors, name = NULL, drop = drop, labels = short_labels) +
+    scale_y_continuous(expand = cor_y_expand) +
     labs(x = x_lab, y = y_lab, title = title_str, subtitle = subtitle) +
     theme_bw(base_size = 13) +
     theme(plot.title = element_text(face = "bold"), legend.position = "right")
@@ -476,7 +500,9 @@ s51_cor_adj <- function(x_col, y_col, x_lab, y_lab, title_str, df = pb_fib_s51) 
     annotate("text", x = Inf, y = Inf,
              label = ct$label, hjust = 1.05, vjust = 1.2, size = 3.8) +
     scale_color_manual(values = s51_all_colors, name = "Adjudicated", drop = TRUE,
+                       labels = short_labels,
                        guide = guide_legend(ncol = 1, override.aes = list(size = 3))) +
+    scale_y_continuous(expand = cor_y_expand) +
     labs(x = x_lab, y = y_lab, title = title_str,
          subtitle = sprintf("n = %d stroma samples", ct$n)) +
     theme_bw(base_size = 13) +

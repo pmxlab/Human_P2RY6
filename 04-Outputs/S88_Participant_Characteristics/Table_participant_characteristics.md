@@ -13,6 +13,11 @@
 | scRNA-seq | Baseline eGFR, mL/min/1.73 m², median (IQR) | 107 (91–111) [10] | 75 (67–82) [19] | 45 (38–57) [51] | 44 (36–59) [19] |
 | scRNA-seq | Diabetes, n (%) | 0 (0%) [15] | 7 (39%) [18] | 44 (86%) [51] | 19 (100%) [19] |
 | scRNA-seq | Hypertension, n (%) | 2 (13%) [15] | 7 (37%) [19] | 50 (98%) [51] | 19 (100%) [19] |
+| scRNA-seq | Tissue: needle biopsy (percutaneous or intra-operative), n (%) | 0 (0%) [15] | 19 (100%) [19] | 51 (100%) [51] | 19 (100%) [19] |
+| scRNA-seq | Tissue: transplant donor biopsy (pre-perfusion or surveillance), n (%) | 10 (67%) [15] | 0 (0%) [19] | 0 (0%) [51] | 0 (0%) [19] |
+| scRNA-seq | Tissue: intra-operative biopsy, n (%) | 5 (33%) [15] | 0 (0%) [19] | 0 (0%) [51] | 0 (0%) [19] |
+| scRNA-seq | Tissue: tumor nephrectomy, n (%) | 0 (0%) [15] | 0 (0%) [19] | 0 (0%) [51] | 0 (0%) [19] |
+| scRNA-seq | Tissue: deceased-donor nephrectomy, n (%) | 0 (0%) [15] | 0 (0%) [19] | 0 (0%) [51] | 0 (0%) [19] |
 | snRNA-seq | Participants, n | 39 | 33 | 72 | 29 |
 | snRNA-seq | With KPMP clinical data, n | 39 | 33 | 72 | 29 |
 | snRNA-seq | Female, n (%) | 25 (66%) [38] | 11 (33%) [33] | 31 (43%) [72] | 11 (38%) [29] |
@@ -22,3 +27,8 @@
 | snRNA-seq | Baseline eGFR, mL/min/1.73 m², median (IQR) | 106 (91–112) [24] | 80 (69–91) [33] | 47 (39–57) [72] | 48 (39–58) [29] |
 | snRNA-seq | Diabetes, n (%) | 2 (8%) [25] | 9 (29%) [31] | 56 (78%) [72] | 29 (100%) [29] |
 | snRNA-seq | Hypertension, n (%) | 3 (12%) [25] | 13 (39%) [33] | 71 (99%) [72] | 29 (100%) [29] |
+| snRNA-seq | Tissue: needle biopsy (percutaneous or intra-operative), n (%) | 1 (3%) [39] | 33 (100%) [33] | 72 (100%) [72] | 29 (100%) [29] |
+| snRNA-seq | Tissue: transplant donor biopsy (pre-perfusion or surveillance), n (%) | 22 (56%) [39] | 0 (0%) [33] | 0 (0%) [72] | 0 (0%) [29] |
+| snRNA-seq | Tissue: intra-operative biopsy, n (%) | 5 (13%) [39] | 0 (0%) [33] | 0 (0%) [72] | 0 (0%) [29] |
+| snRNA-seq | Tissue: tumor nephrectomy, n (%) | 8 (21%) [39] | 0 (0%) [33] | 0 (0%) [72] | 0 (0%) [29] |
+| snRNA-seq | Tissue: deceased-donor nephrectomy, n (%) | 3 (8%) [39] | 0 (0%) [33] | 0 (0%) [72] | 0 (0%) [29] |

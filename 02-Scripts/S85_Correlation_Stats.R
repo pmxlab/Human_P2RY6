@@ -28,7 +28,7 @@
 #   Table_S4_correlations.csv/.md  compact supplementary table (Table S6)
 # Revision 1 (AIReview1 B6): Table S6 also lists the correlation of the PT
 #   pyrimidine score with stromal (scRNA-seq) and fibroblast (snRNA-seq) P2RY6
-#   expression reported in Section 3.5 (figure "3.5", own BH family).
+#   expression reported in Section 3.6 (figure "3.6", own BH family).
 # ============================================================================#
 
 rm(list = ls())
@@ -144,17 +144,17 @@ res <- bind_rows(lapply(panel_ids, function(id) {
   bind_rows(pooled, adj, within)
 }))
 
-# . Section 3.5: PT pyrimidine score vs stromal / fibroblast P2RY6 ----
+# . Section 3.6: PT pyrimidine score vs stromal / fibroblast P2RY6 ----
 # Revision 1 (AIReview1 B6, comments R1.03 / R3.02): the null result of
-# Section 3.5 is added to Table S6. Same matched participants as Figure 6b-e
-# (pb_cross); its own BH family (figure "3.5").
+# Section 3.6 is added to Table S6. Same matched participants as Figure 6b-e
+# (pb_cross); its own BH family (figure "3.6").
 res_p2ry6 <- bind_rows(lapply(c("b", "c", "d", "e"), function(letter) {
   p <- get(paste0("f6", letter), envir = env); d0 <- p$data
   cond_col <- intersect(c("condition", "EnrollmentCategory", "enrollment"), names(d0))[1]
   d <- data.frame(x = d0$pyrim_score, y = d0$mean_P2RY6,
                   condition = unname(cond_map[as.character(d0[[cond_col]])]))
   d <- d[!is.na(d$x) & !is.na(d$y), ]
-  meta <- data.frame(figure = "3.5", panel = paste0("3.5 (as 6", letter, ")"),
+  meta <- data.frame(figure = "3.6", panel = paste0("3.6 (as 6", letter, ")"),
                      pair = if (letter %in% c("b", "c")) "PT pyrimidine score vs stroma P2RY6"
                             else "PT pyrimidine score vs fibroblast P2RY6",
                      dataset = dataset_of[[letter]], analysis = analysis_of[[letter]])
@@ -167,7 +167,7 @@ res_p2ry6 <- bind_rows(lapply(c("b", "c", "d", "e"), function(letter) {
                   partial_spearman(d$x, d$y, d$condition)),
             within)
 }))
-pairs <- c(pairs, "3.5" = "PT pyrimidine score vs P2RY6")
+pairs <- c(pairs, "3.6" = "PT pyrimidine score vs P2RY6")
 res <- bind_rows(res, res_p2ry6)
 
 res <- res %>%
@@ -183,7 +183,7 @@ res <- res %>%
 chk <- sapply(panel_ids, function(id) {
   d <- panel_data(id); env$spearman_ci(d$x, d$y)$rho
 })
-stopifnot(isTRUE(all.equal(unname(chk), res$rho[res$type == "pooled" & res$figure != "3.5"])))
+stopifnot(isTRUE(all.equal(unname(chk), res$rho[res$type == "pooled" & res$figure != "3.6"])))
 
 write.csv(res, file.path(out_dir, "Table_correlations_all.csv"), row.names = FALSE)
 

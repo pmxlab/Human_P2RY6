@@ -1,7 +1,7 @@
 # ============================================================================#
 # S80_Manuscript_Figures.R
 # Assembles the multi-panel figures of the revised manuscript (MDPI Life,
-# Submission 2) from the panel code of the analysis scripts S40-S62.
+# Submission 2) from the panel code of the analysis scripts S20-S62.
 #
 # Replaces the manually collated slides in
 #   07-Manuscript/Submission 2 - MDPI-LIFE/Figures.pptx
@@ -27,7 +27,8 @@
 #       bulk data and the ComBat-corrected combined Fan + KPMP panels
 #       (S40-S42) and the PCA figure (former Figure S1) were removed, because
 #       the AKI/CKD profiles of KPMP cannot be compared reliably with the
-#       Normal samples of another cohort (sensitivity analysis: S43).
+#       Normal samples of another cohort (sensitivity analysis: S43). S30 and
+#       S40-S43 were removed from the repository (see git history).
 #   Figure 2b shows mean P2RY6 expression like the other P2RY6 panels
 #       (Figures.pptx showed % P2RY6+ stroma cells; changed in the v5 revision).
 #   (*) In Figures.pptx the slide "Suppl. Figure 3" is an exact copy of
@@ -107,7 +108,7 @@ format_p <- function(p) {
 }
 
 # NA-safe version (S50/S51/S52/S62); gives identical results to the
-# S40/S41/S42/S60 version on complete data.
+# version without NA handling on complete data.
 spearman_ci <- function(x, y) {
   keep <- !is.na(x) & !is.na(y)
   x <- x[keep]; y <- y[keep]

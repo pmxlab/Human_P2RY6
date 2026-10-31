@@ -373,7 +373,7 @@ write.csv(pooled_cor, file.path(out_dir, "Table_pooled_correlations.csv"), row.n
 print(pooled_cor)
 
 # =========================================================================== #
-# 7. SAVE NORMALISED EXPRESSION FOR S40 (combined cohort) ----
+# 7. SAVE NORMALISED EXPRESSION (used by S70, S75, S80 and later scripts) ----
 # =========================================================================== #
 
 saveRDS(

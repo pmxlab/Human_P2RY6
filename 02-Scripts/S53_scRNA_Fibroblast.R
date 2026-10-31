@@ -13,7 +13,7 @@
 # PT analysis: SKIPPED — reuses pb_pt from S50_pseudobulk.rds (no re-loading needed)
 # FIB analysis: Perivascular Fibroblast + Myofibroblast pseudobulk by SampleID
 # Outputs    : 04-Outputs/S53_scRNA_Fibroblast/
-#              S53_pseudobulk.rds  (used by S54 DKD-focused variant)
+#              S53_pseudobulk.rds
 # ============================================================================#
 
 rm(list = ls())
@@ -381,7 +381,7 @@ ggsave(filename = file.path(out_dir, "Fig_Cor_FB_PDGFRB_vs_P2RY6.png"),
        plot = p_cor_pdgfrb_p2ry6, width = 7, height = 4.5, dpi = dpi)
 
 # ============================================================================#
-# 5. SAVE PSEUDOBULK FOR S54 ----
+# 5. SAVE PSEUDOBULK ----
 # ============================================================================#
 
 saveRDS(

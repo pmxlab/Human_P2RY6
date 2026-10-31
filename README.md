@@ -106,7 +106,25 @@ Kidney Precision Medicine Project (KPMP), Kidney Tissue Atlas:
 - Data repository: <https://atlas.kpmp.org/repository>
 - Explorer: <https://atlas.kpmp.org/explorer>
 
-Download the following files from the repository:
+The analysis uses the processed, open-access Seurat objects (format
+h5Seurat, workflow "Aggregated Clustered Data"), not raw FASTQ/BAM files
+(which are controlled access). Both objects belong to the KPMP dataset with
+DOI [10.48698/16dd-vj20](https://doi.org/10.48698/16dd-vj20). To list them in
+the repository, filter by **Data Format = h5Seurat**
+(<https://atlas.kpmp.org/repository/?size=n_1000_n&filters%5B0%5D%5Bfield%5D=data_format&filters%5B0%5D%5Bvalues%5D%5B0%5D=h5Seurat&filters%5B0%5D%5Btype%5D=any>)
+and pick the two files below. Older Explorer versions with similar names
+are listed there too; check the file name and size:
+
+| Experimental strategy | File name in the repository | Size (bytes) | DOI |
+|-----------------------|-----------------------------|--------------|-----|
+| Single-cell RNA-Seq   | `KPMP_PREMIERE_SC_version2_ForExplorer_RemovedBatchEffect_Final2025.h5seurat` | 7,302,897,490 | 10.48698/16dd-vj20 |
+| Single-nucleus RNA-Seq | `SingleNucleus_KPMP_Explorer_05182025.h5Seurat` | 8,013,374,548 | 10.48698/16dd-vj20 |
+
+Downloaded files can carry a file-ID prefix (e.g.
+`b8732f23-4372-4ea1-b374-4779b318381e_SingleNucleus_KPMP_Explorer_05182025.h5Seurat`);
+remove the prefix so that the names match the paths below. The open-access
+clinical data (release 2025-12-05, `20251205_OpenAccessClinicalData`) are
+downloaded from the same repository as a zip file.
 
 | Data | Expected path | Used by |
 |------|---------------|---------|

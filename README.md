@@ -113,7 +113,22 @@ DOI [10.48698/16dd-vj20](https://doi.org/10.48698/16dd-vj20). To list them in
 the repository, filter by **Data Format = h5Seurat**
 (<https://atlas.kpmp.org/repository/?size=n_1000_n&filters%5B0%5D%5Bfield%5D=data_format&filters%5B0%5D%5Bvalues%5D%5B0%5D=h5Seurat&filters%5B0%5D%5Btype%5D=any>)
 and pick the two files below. Older Explorer versions with similar names
-are listed there too; check the file name and size:
+are listed there too; check the file name and size.
+
+If this link stops working, set the filter by hand (labels as of October 2026):
+
+1. Open <https://atlas.kpmp.org/repository>.
+2. In the filter panel on the left (open it with the arrow button if it is
+   collapsed), expand **Dataset metadata**.
+3. Expand **Data Format** and tick **h5Seurat**. Alternatively, expand
+   **DOIs** and tick **10.48698/16dd-vj20**, the dataset that contains the
+   two files used here.
+4. Optionally narrow down further with **Experimental Strategy**
+   (Single-cell RNA-Seq / Single-nucleus RNA-Seq).
+5. Download a file with the download button in its row. The files are open
+   access, so no data access request is needed.
+
+The files used in this analysis:
 
 | Experimental strategy | File name in the repository | Size (bytes) | DOI |
 |-----------------------|-----------------------------|--------------|-----|

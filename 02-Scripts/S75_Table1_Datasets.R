@@ -11,8 +11,10 @@
 # are two specimens of donor 15; REF67-* are 8 sequencing runs of donor 67),
 # so participants are counted by SampleID, the unit of the S50 pseudobulk.
 #
-# Inputs : S20/S30 rds, KPMP bulk metadata + count files (library sizes),
-#          metadata columns of the KPMP scRNA/snRNA h5Seurat files (read with
+# KPMP bulk RNA-seq is no longer analyzed (no healthy reference participants)
+# and is not listed.
+#
+# Inputs : S20 rds, metadata columns of the KPMP scRNA/snRNA h5Seurat files (read with
 #          hdf5r, no Seurat object is loaded), KPMP clinical data,
 #          S50/S60 pseudobulk rds (cross-check).
 # Outputs: 04-Outputs/S75_Table1_Datasets/
@@ -33,10 +35,8 @@ library(knitr)
 # ============================================================================#
 
 s20_rds  <- "../04-Outputs/S20_FanDKD_BulkRNA/S20_normalised.rds"
-s30_rds  <- "../04-Outputs/S30_KPMP_BulkRNA/S30_normalised.rds"
 s50_rds  <- "../04-Outputs/S50_KPMP_scRNA/S50_pseudobulk.rds"
 s60_rds  <- "../04-Outputs/S60_KPMP_snRNA/S60_pseudobulk.rds"
-bulk_dir <- "../../KPMP_BulkRNA"
 sc_file  <- "../../KPMP_scRNA/KPMP_PREMIERE_SC_version2_ForExplorer_RemovedBatchEffect_Final2025.h5seurat"
 sc_clin  <- "../../KPMP_scRNA/OpenAccessClinicalData/20251205_OpenAccessClinicalData.csv"
 sn_file  <- "../../KPMP_snRNA/SingleNucleus_KPMP_Explorer_05182025.h5Seurat"
@@ -87,66 +87,7 @@ add_step("Fan DKD bulk", "Deposited in GEO", nrow(fan), fmt_counts(fan_n, fan_la
 add_step("Fan DKD bulk", "Analyzed", nrow(fan), fmt_counts(fan_n, fan_lab), "no exclusions")
 
 # ============================================================================#
-# 2. KPMP BULK (filtering steps of S30 §1-§2) ----
-# ============================================================================#
-
-atlas <- read.csv(file.path(bulk_dir, "0_ATLAS_PATIENT_FILE_METADATA.csv"),
-                  stringsAsFactors = FALSE, check.names = FALSE)
-names(atlas) <- trimws(names(atlas))
-cm <- atlas %>%
-  filter(grepl("counts\\.csv$", `File Name`, ignore.case = TRUE),
-         !grepl("raw-reads", `File Name`, ignore.case = TRUE)) %>%
-  mutate(file_path = file.path(bulk_dir, `File Name`)) %>%
-  filter(file.exists(file_path))
-cm$total_counts <- vapply(cm$file_path, function(f) {
-  d <- read.csv(f, header = TRUE, check.names = FALSE)
-  if (ncol(d) < 2) d <- read.table(f, header = TRUE, sep = "\t", check.names = FALSE)
-  sum(d[, 2], na.rm = TRUE)
-}, numeric(1))
-
-kb_lab <- c(AKI = "AKI", CKD = "CKD")
-kb_cnt <- function(d) table(d$`Enrollment Category`[!duplicated(d$`Participant ID`)])
-n_files <- nrow(cm)
-add_step("KPMP bulk", "Participants with a count file", n_distinct(cm$`Participant ID`),
-         fmt_counts(kb_cnt(cm), kb_lab),
-         sprintf("%d count files; replicates reduced to the file with the largest library",
-                 n_files))
-kb <- cm %>% group_by(`Participant ID`) %>%
-  slice_max(total_counts, n = 1, with_ties = FALSE) %>% ungroup()
-lowlib <- kb %>% filter(total_counts < 1e6)
-kb <- kb %>% filter(total_counts >= 1e6)
-add_step("KPMP bulk", "Excluded: library < 1 million reads", nrow(lowlib),
-         fmt_counts(kb_cnt(lowlib), kb_lab))
-cbd <- kb %>% filter(`Primary Adjudicated Category` == "Cannot be determined")
-kb  <- kb %>% filter(`Primary Adjudicated Category` != "Cannot be determined")
-add_step("KPMP bulk", "Excluded: adjudicated diagnosis 'Cannot be determined'", nrow(cbd),
-         fmt_counts(kb_cnt(cbd), kb_lab))
-ckd_sub <- table(kb$`Primary Adjudicated Category`[kb$`Enrollment Category` == "CKD"])
-ckd_sub_txt <- sprintf("CKD: DKD %d, HKD %d, other %d",
-  sum(ckd_sub[names(ckd_sub) == "Diabetic Kidney Disease"]),
-  sum(ckd_sub[names(ckd_sub) == "Hypertensive Kidney Disease"]),
-  sum(ckd_sub[!names(ckd_sub) %in% c("Diabetic Kidney Disease", "Hypertensive Kidney Disease")]))
-add_step("KPMP bulk", "Analyzed", nrow(kb), fmt_counts(kb_cnt(kb), kb_lab), ckd_sub_txt)
-s30 <- readRDS(s30_rds)$meta
-stopifnot(setequal(s30$sample_id, kb$`Participant ID`))   # matches S30 output
-
-# ============================================================================#
-# 3. COMBINED BULK (S40 / S42) ----
-# ============================================================================#
-
-n_ckd_nondkd <- sum(kb$`Enrollment Category` == "CKD" &
-                    kb$`Primary Adjudicated Category` != "Diabetic Kidney Disease")
-comb_n <- c(fan_n, kb_cnt(kb))
-comb_lab <- c(fan_lab, AKI = "AKI", CKD = "CKD")
-add_step("Combined bulk", "Analyzed, all conditions", sum(comb_n),
-         fmt_counts(comb_n, comb_lab), "Fan DKD bulk + KPMP bulk; ComBat batch correction")
-comb_dkd <- comb_n; comb_dkd["CKD"] <- comb_dkd["CKD"] - n_ckd_nondkd
-add_step("Combined bulk", "Excluded for DKD-focused analysis: CKD without DKD",
-         n_ckd_nondkd, fmt_counts(c(CKD = n_ckd_nondkd), c(CKD = "CKD")))
-add_step("Combined bulk", "Analyzed, DKD-focused", sum(comb_dkd), fmt_counts(comb_dkd, comb_lab))
-
-# ============================================================================#
-# 4. KPMP scRNA-seq (S50 / S52) ----
+# 2. KPMP scRNA-seq (S50 / S52) ----
 # ============================================================================#
 
 sc_lab <- c("Healthy Reference Tissue" = "Healthy", "Acute Kidney Injury" = "AKI",
@@ -213,7 +154,7 @@ stopifnot(setequal(unique(sc_pt$SampleID), s50$pb_pt$SampleID),
           setequal(unique(sc_st$SampleID), s50$pb_fib$SampleID))
 
 # ============================================================================#
-# 5. KPMP snRNA-seq (S60 / S62) ----
+# 3. KPMP snRNA-seq (S60 / S62) ----
 # ============================================================================#
 
 sn_lab <- c("Healthy Reference" = "Healthy", AKI = "AKI", CKD = "CKD")
@@ -262,7 +203,7 @@ add_step("KPMP snRNA-seq", "Analyzed, PT, DKD-focused", nrow(sn_pt_dkd),
          fmt_counts(sn_cnt(sn_pt_dkd), sn_lab))
 
 # ============================================================================#
-# 6. CROSS-COMPARTMENT (PT and stroma/fibroblast available) ----
+# 4. CROSS-COMPARTMENT (PT and stroma/fibroblast available) ----
 # ============================================================================#
 
 cross <- function(pt, fb, idcol, lab, condcol) {
@@ -285,7 +226,7 @@ stopifnot(x1$n == nrow(s50$pb_cross), x3$n == nrow(s60$pb_cross))
 steps_df <- bind_rows(steps)
 
 # ============================================================================#
-# 7. ANALYZED PARTICIPANTS PER ANALYSIS SET AND COMPARTMENT ----
+# 5. ANALYZED PARTICIPANTS PER ANALYSIS SET AND COMPARTMENT ----
 # ============================================================================#
 # One row per dataset x analysis set x compartment, with counts per condition
 # and the figure panels that display these participants (verified against the
@@ -317,14 +258,9 @@ uniq <- function(d, id, cond) d[!duplicated(d[[id]]), cond]
 
 # . Bulk ----
 fan_cond  <- as.character(fan$condition)
-kb_cond   <- kb$`Enrollment Category`
-kb_dkd    <- !(kb$`Enrollment Category` == "CKD" &
-               kb$`Primary Adjudicated Category` != "Diabetic Kidney Disease")
-comb_cond <- c(fan_cond, kb_cond)
-comb_dkd_cond <- c(fan_cond, kb_cond[kb_dkd])
 # Revision 1: panels (a) show the Fan DKD cohort only; the KPMP bulk data and
 # the combined Fan + KPMP set are no longer analyzed (cohort and diagnosis
-# confounded; see S43).
+# confounded).
 # Figure 1a (bulk PT marker score) also shows the Fan DKD cohort; the KPMP
 # panels of Figure 1 are (c)-(f) (Revision 1, comment of A. Figurek).
 fan_fig <- "1a, 1b, 2a, 3a, 4a, 5a, 6a, S1a, S2a, S3a"
@@ -360,13 +296,6 @@ sn_u <- function(d) relabel(uniq(d, "patient", "enrollment"), sn_map)
 analyzed <- bind_rows(
   count_row("Fan DKD bulk", "All conditions", "Whole tissue", relabel(fan_cond, bulk_map),
             fan_fig),
-  count_row("KPMP bulk", "All conditions", "Whole tissue", relabel(kb_cond, bulk_map),
-            "none", "no", note = paste(get("KPMP bulk", "Analyzed")$note,
-              "| not analyzed: no healthy samples; AKI/CKD cannot be compared with Normal of another cohort")),
-  count_row("Combined bulk", "All conditions", "Whole tissue", relabel(comb_cond, bulk_map),
-            "none", "no", note = "not analyzed: cohort and diagnosis confounded (S43)"),
-  count_row("Combined bulk", "DKD-focused", "Whole tissue", relabel(comb_dkd_cond, bulk_map),
-            "none", "no", note = "not analyzed: cohort and diagnosis confounded (S43)"),
   count_row("KPMP scRNA-seq", "All conditions", "PT", sc_u(sc_pt), "1c"),
   count_row("KPMP scRNA-seq", "All conditions", "Stroma", sc_u(sc_st),
             "2b, 3b, 4b, 5b, S1b, S2b, S3b", note = paste("stroma class:", sc_stroma_txt)),
@@ -400,15 +329,13 @@ analyzed <- bind_rows(
 )
 # consistency with the step table
 stopifnot(
-  analyzed$Total[analyzed$Dataset == "Combined bulk" & analyzed$Analysis == "All conditions"] ==
-    get("Combined bulk", "Analyzed, all conditions")$n_participants,
   analyzed$Total[analyzed$Dataset == "KPMP scRNA-seq" & analyzed$Compartment == "PT and stroma (matched)" &
                    analyzed$Analysis == "All conditions"] == nrow(s50$pb_cross),
   analyzed$Total[analyzed$Dataset == "KPMP snRNA-seq" & analyzed$Compartment == "PT and fibroblasts (matched)" &
                    analyzed$Analysis == "All conditions"] == nrow(s60$pb_cross))
 
 # ============================================================================#
-# 8. COMPACT TABLE 1 ----
+# 6. COMPACT TABLE 1 ----
 # ============================================================================#
 
 fmt_row <- function(r) {
@@ -438,18 +365,6 @@ proc <- c(
     "reads across all samples removed; deposited in GEO in this form (raw counts not available).",
     "In this study: values used without further normalization. One kidney sample per participant",
     "(DKD: biopsy; Normal: tumor nephrectomy)."),
-  "KPMP bulk" = paste(
-    "In this study: one count file per participant (for replicates, the file with the largest",
-    "library); participants with < 1 million mapped reads or an undetermined adjudicated diagnosis",
-    "excluded. Raw counts merged on the genes present in all files; low-expression genes removed",
-    "with filterByExpr, keeping all pathway and marker genes; TMM normalization and transformation",
-    "to log2 counts per million (edgeR, prior count 1)."),
-  "Combined bulk" = paste(
-    "In this study: Fan DKD (log2 quantile-normalized) and KPMP (log2 CPM) matrices merged on",
-    "the genes present in both; cohort batch effect, including the different normalization scales,",
-    "removed with ComBat (sva), protecting a binary Normal vs. diseased covariate. Module scores",
-    "computed on the corrected matrix. DKD-focused analysis: KPMP CKD restricted to participants",
-    "with an adjudicated diagnosis of diabetic kidney disease."),
   "KPMP scRNA-seq" = paste(
     "By KPMP: integrated object including the Lake et al. (2023) atlas, with raw UMI counts,",
     "batch-corrected expression values and cell annotations.",
@@ -473,8 +388,6 @@ proc <- c(
 )
 
 orig <- function(ds, st) { o <- get(ds, st); sprintf("%d (%s)", o$n_participants, o$by_condition) }
-# Revision 1: KPMP bulk and the combined bulk set are not analyzed (S43) and
-# are not listed.
 table1 <- data.frame(
   Dataset  = c("Fan DKD (GSE142025)", "KPMP scRNA-seq (incl. Lake 2023)", "KPMP snRNA-seq"),
   Platform = c("Bulk RNA-seq", "scRNA-seq", "snRNA-seq"),

@@ -1,7 +1,8 @@
 # =============================================================================
 # S70_DonorMembership.R
-# Donor-level membership table across the four cohorts used in the revision:
-#   Fan DKD bulk (S20), KPMP bulk (S30), KPMP scRNA (S50), KPMP snRNA (S60).
+# Donor-level membership table across the three datasets used in the revision:
+#   Fan DKD bulk (S20), KPMP scRNA (S50), KPMP snRNA (S60).
+# KPMP bulk RNA-seq is no longer analyzed (no healthy reference participants).
 #
 # Output: a CSV with one row per unique donor ID, columns indicating presence
 # in each cohort and the per-cohort condition / adjudicated diagnosis.
@@ -20,7 +21,6 @@ library(readr)
 # =============================================================================
 
 s20_rds <- "../04-Outputs/S20_FanDKD_BulkRNA/S20_normalised.rds"
-s30_rds <- "../04-Outputs/S30_KPMP_BulkRNA/S30_normalised.rds"
 s50_rds <- "../04-Outputs/S50_KPMP_scRNA/S50_pseudobulk.rds"
 s60_rds <- "../04-Outputs/S60_KPMP_snRNA/S60_pseudobulk.rds"
 
@@ -32,7 +32,6 @@ dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 # =============================================================================
 
 s20 <- readRDS(s20_rds)   # list(expr_mat, meta) — Fan DKD
-s30 <- readRDS(s30_rds)   # list(expr_mat, meta) — KPMP bulk
 sc  <- readRDS(s50_rds)   # list(pb_pt, pb_fib, pb_fib_sub, pb_cross) — KPMP scRNA
 sn  <- readRDS(s60_rds)   # list(pb_pt, pb_fib, pb_fib_sub, pb_cross) — KPMP snRNA
 
@@ -44,14 +43,6 @@ fan <- s20$meta %>%
   transmute(
     donor_id = as.character(short_id),
     fan_condition = as.character(condition)
-  ) %>%
-  distinct()
-
-kbulk <- s30$meta %>%
-  transmute(
-    donor_id = as.character(sample_id),
-    kpmp_bulk_enrollment = as.character(enrollment_category),
-    kpmp_bulk_adjudicated = as.character(primary_adjudicated_category)
   ) %>%
   distinct()
 
@@ -115,11 +106,10 @@ snrna <- full_join(sn_enrollment, sn_adj_lookup, by = "donor_id") %>%
 # =============================================================================
 
 all_ids <- sort(unique(c(
-  fan$donor_id, kbulk$donor_id, scrna$donor_id, snrna$donor_id
+  fan$donor_id, scrna$donor_id, snrna$donor_id
 )))
 
 fan_donor_set     <- unique(fan$donor_id)
-kbulk_donor_set   <- unique(kbulk$donor_id)
 scrna_donor_set   <- unique(c(sc_pt_ids, sc_fib_ids))
 snrna_donor_set   <- unique(c(sn_pt_ids, sn_fib_ids))
 
@@ -129,28 +119,24 @@ blank_to_na <- function(x) {
   ifelse(is.na(x) | x == "", NA_character_, x)
 }
 
-# Each row tracks a donor's presence in four distinct DATASETS. Cohort and
+# Each row tracks a donor's presence in three distinct DATASETS. Cohort and
 # technology are jointly identified by the dataset name (Fan-bulk is bulk
-# RNA-seq from the Fan DKD study; KPMP-bulk is bulk from KPMP; KPMP-scRNA
-# and KPMP-snRNA are the cellular KPMP datasets).
+# RNA-seq from the Fan DKD study; KPMP-scRNA and KPMP-snRNA are the cellular
+# KPMP datasets).
 membership <- tibble(donor_id = all_ids) %>%
   left_join(fan,   by = "donor_id") %>%
-  left_join(kbulk, by = "donor_id") %>%
   left_join(scrna, by = "donor_id") %>%
   left_join(snrna, by = "donor_id") %>%
   mutate(
     in_fan_bulk        = donor_id %in% fan_donor_set,
-    in_kpmp_bulk       = donor_id %in% kbulk_donor_set,
     in_kpmp_scrna      = donor_id %in% scrna_donor_set,
     in_kpmp_snrna      = donor_id %in% snrna_donor_set,
     in_kpmp_scrna_pt   = donor_id %in% sc_pt_ids,
     in_kpmp_scrna_fib  = donor_id %in% sc_fib_ids,
     in_kpmp_snrna_pt   = donor_id %in% sn_pt_ids,
     in_kpmp_snrna_fib  = donor_id %in% sn_fib_ids,
-    n_datasets         = in_fan_bulk + in_kpmp_bulk + in_kpmp_scrna + in_kpmp_snrna,
+    n_datasets         = in_fan_bulk + in_kpmp_scrna + in_kpmp_snrna,
     fan_condition           = blank_to_na(fan_condition),
-    kpmp_bulk_enrollment    = blank_to_na(kpmp_bulk_enrollment),
-    kpmp_bulk_adjudicated   = blank_to_na(kpmp_bulk_adjudicated),
     kpmp_scrna_enrollment   = blank_to_na(kpmp_scrna_enrollment),
     kpmp_scrna_adjudicated  = blank_to_na(kpmp_scrna_adjudicated),
     kpmp_snrna_enrollment   = blank_to_na(kpmp_snrna_enrollment),
@@ -163,17 +149,15 @@ membership <- tibble(donor_id = all_ids) %>%
 
 # . Unified condition (best available source label, retained for traceability) ----
 # Priority: Fan condition > KPMP scRNA adjudicated > snRNA adjudicated >
-#           bulk adjudicated > any enrollment.
+#           any enrollment.
 membership <- membership %>%
   mutate(
     condition_unified = case_when(
       !is.na(fan_condition)              ~ fan_condition,
       !is.na(kpmp_scrna_adjudicated)     ~ kpmp_scrna_adjudicated,
       !is.na(kpmp_snrna_adjudicated)     ~ kpmp_snrna_adjudicated,
-      !is.na(kpmp_bulk_adjudicated)      ~ kpmp_bulk_adjudicated,
       !is.na(kpmp_scrna_enrollment)      ~ kpmp_scrna_enrollment,
       !is.na(kpmp_snrna_enrollment)      ~ kpmp_snrna_enrollment,
-      !is.na(kpmp_bulk_enrollment)       ~ kpmp_bulk_enrollment,
       TRUE                                ~ NA_character_
     )
   )
@@ -217,8 +201,6 @@ harmonise <- function(...) {
 membership$condition_harmonized <- mapply(
   harmonise,
   membership$fan_condition,
-  membership$kpmp_bulk_adjudicated,
-  membership$kpmp_bulk_enrollment,
   membership$kpmp_scrna_adjudicated,
   membership$kpmp_scrna_enrollment,
   membership$kpmp_snrna_adjudicated,
@@ -226,36 +208,26 @@ membership$condition_harmonized <- mapply(
   USE.NAMES = FALSE
 )
 
-# . Pairwise / triple / quadruple dataset intersections ----
+# . Pairwise / triple dataset intersections ----
 # Each column is "is this donor present in BOTH (or all of) these datasets?"
-# Names are fully qualified by dataset (Fan-bulk, KPMP-bulk, KPMP-scRNA,
-# KPMP-snRNA) so cohort and technology are not conflated.
+# Names are fully qualified by dataset (Fan-bulk, KPMP-scRNA, KPMP-snRNA) so
+# cohort and technology are not conflated.
 membership <- membership %>%
   mutate(
     # 2-way
-    in_fan_bulk_x_kpmp_bulk    = in_fan_bulk   & in_kpmp_bulk,
     in_fan_bulk_x_kpmp_scrna   = in_fan_bulk   & in_kpmp_scrna,
     in_fan_bulk_x_kpmp_snrna   = in_fan_bulk   & in_kpmp_snrna,
-    in_kpmp_bulk_x_kpmp_scrna  = in_kpmp_bulk  & in_kpmp_scrna,
-    in_kpmp_bulk_x_kpmp_snrna  = in_kpmp_bulk  & in_kpmp_snrna,
     in_kpmp_scrna_x_kpmp_snrna = in_kpmp_scrna & in_kpmp_snrna,
     # 3-way
-    in_fan_bulk_x_kpmp_bulk_x_kpmp_scrna  = in_fan_bulk  & in_kpmp_bulk  & in_kpmp_scrna,
-    in_fan_bulk_x_kpmp_bulk_x_kpmp_snrna  = in_fan_bulk  & in_kpmp_bulk  & in_kpmp_snrna,
-    in_fan_bulk_x_kpmp_scrna_x_kpmp_snrna = in_fan_bulk  & in_kpmp_scrna & in_kpmp_snrna,
-    in_kpmp_bulk_x_kpmp_scrna_x_kpmp_snrna = in_kpmp_bulk & in_kpmp_scrna & in_kpmp_snrna,
-    # 4-way
-    in_all_four_datasets = in_fan_bulk & in_kpmp_bulk & in_kpmp_scrna & in_kpmp_snrna
+    in_all_three_datasets = in_fan_bulk & in_kpmp_scrna & in_kpmp_snrna
   )
 
-# Compact pattern label, e.g. "Fan-bulk" / "KPMP-bulk + KPMP-scRNA" /
-# "KPMP-scRNA + KPMP-snRNA" / "KPMP-bulk + KPMP-scRNA + KPMP-snRNA".
-build_pattern <- function(a, b, c, d) {
+# Compact pattern label, e.g. "Fan-bulk" / "KPMP-scRNA + KPMP-snRNA".
+build_pattern <- function(a, b, c) {
   parts <- c(
     if (isTRUE(a)) "Fan-bulk"   else NULL,
-    if (isTRUE(b)) "KPMP-bulk"  else NULL,
-    if (isTRUE(c)) "KPMP-scRNA" else NULL,
-    if (isTRUE(d)) "KPMP-snRNA" else NULL
+    if (isTRUE(b)) "KPMP-scRNA" else NULL,
+    if (isTRUE(c)) "KPMP-snRNA" else NULL
   )
   if (length(parts) == 0) return(NA_character_)
   paste(parts, collapse = " + ")
@@ -263,7 +235,6 @@ build_pattern <- function(a, b, c, d) {
 membership$membership_pattern <- mapply(
   build_pattern,
   membership$in_fan_bulk,
-  membership$in_kpmp_bulk,
   membership$in_kpmp_scrna,
   membership$in_kpmp_snrna,
   USE.NAMES = FALSE
@@ -277,23 +248,15 @@ membership <- membership %>%
     condition_unified,
     membership_pattern,
     n_datasets,
-    in_fan_bulk, in_kpmp_bulk, in_kpmp_scrna, in_kpmp_snrna,
-    in_fan_bulk_x_kpmp_bulk,
+    in_fan_bulk, in_kpmp_scrna, in_kpmp_snrna,
     in_fan_bulk_x_kpmp_scrna,
     in_fan_bulk_x_kpmp_snrna,
-    in_kpmp_bulk_x_kpmp_scrna,
-    in_kpmp_bulk_x_kpmp_snrna,
     in_kpmp_scrna_x_kpmp_snrna,
-    in_fan_bulk_x_kpmp_bulk_x_kpmp_scrna,
-    in_fan_bulk_x_kpmp_bulk_x_kpmp_snrna,
-    in_fan_bulk_x_kpmp_scrna_x_kpmp_snrna,
-    in_kpmp_bulk_x_kpmp_scrna_x_kpmp_snrna,
-    in_all_four_datasets,
+    in_all_three_datasets,
     in_kpmp_scrna_pt, in_kpmp_scrna_fib,
     in_kpmp_snrna_pt, in_kpmp_snrna_fib,
     is_lake_format,
     fan_condition,
-    kpmp_bulk_enrollment, kpmp_bulk_adjudicated,
     kpmp_scrna_enrollment, kpmp_scrna_adjudicated,
     kpmp_snrna_enrollment, kpmp_snrna_adjudicated
   ) %>%
@@ -315,7 +278,6 @@ cat("Rows :", nrow(membership), "\n\n")
 
 cat("=== Dataset sizes (n donors) ===\n")
 cat(sprintf("  Fan-bulk    : %d\n", sum(membership$in_fan_bulk)))
-cat(sprintf("  KPMP-bulk   : %d\n", sum(membership$in_kpmp_bulk)))
 cat(sprintf("  KPMP-scRNA  : %d\n", sum(membership$in_kpmp_scrna)))
 cat(sprintf("  KPMP-snRNA  : %d\n", sum(membership$in_kpmp_snrna)))
 
@@ -324,18 +286,9 @@ print(table(membership$n_datasets, dnn = "n_datasets"))
 
 cat("\n=== Pairwise dataset overlaps ===\n")
 ov <- function(a, b) sum(membership[[a]] & membership[[b]])
-cat(sprintf("  Fan-bulk   ∩ KPMP-bulk  : %d\n", ov("in_fan_bulk",   "in_kpmp_bulk")))
 cat(sprintf("  Fan-bulk   ∩ KPMP-scRNA : %d\n", ov("in_fan_bulk",   "in_kpmp_scrna")))
 cat(sprintf("  Fan-bulk   ∩ KPMP-snRNA : %d\n", ov("in_fan_bulk",   "in_kpmp_snrna")))
-cat(sprintf("  KPMP-bulk  ∩ KPMP-scRNA : %d\n", ov("in_kpmp_bulk",  "in_kpmp_scrna")))
-cat(sprintf("  KPMP-bulk  ∩ KPMP-snRNA : %d\n", ov("in_kpmp_bulk",  "in_kpmp_snrna")))
 cat(sprintf("  KPMP-scRNA ∩ KPMP-snRNA : %d\n", ov("in_kpmp_scrna", "in_kpmp_snrna")))
-
-cat("\n=== Triple overlap (KPMP-bulk ∩ KPMP-scRNA ∩ KPMP-snRNA) ===\n")
-cat(sprintf("  n = %d\n",
-            sum(membership$in_kpmp_bulk &
-                membership$in_kpmp_scrna &
-                membership$in_kpmp_snrna)))
 
 cat("\n=== Lake-format donors (no-hyphen heuristic) ===\n")
 cat(sprintf("  Lake-format AND in KPMP-scRNA : %d\n",
@@ -361,14 +314,7 @@ print(membership %>%
 
 cat("\n=== Intersection counts (n donors) ===\n")
 ic <- function(col) sum(membership[[col]])
-cat(sprintf("  Fan-bulk   ∩ KPMP-bulk                : %d\n", ic("in_fan_bulk_x_kpmp_bulk")))
 cat(sprintf("  Fan-bulk   ∩ KPMP-scRNA               : %d\n", ic("in_fan_bulk_x_kpmp_scrna")))
 cat(sprintf("  Fan-bulk   ∩ KPMP-snRNA               : %d\n", ic("in_fan_bulk_x_kpmp_snrna")))
-cat(sprintf("  KPMP-bulk  ∩ KPMP-scRNA               : %d\n", ic("in_kpmp_bulk_x_kpmp_scrna")))
-cat(sprintf("  KPMP-bulk  ∩ KPMP-snRNA               : %d\n", ic("in_kpmp_bulk_x_kpmp_snrna")))
 cat(sprintf("  KPMP-scRNA ∩ KPMP-snRNA               : %d\n", ic("in_kpmp_scrna_x_kpmp_snrna")))
-cat(sprintf("  Fan-bulk  ∩ KPMP-bulk  ∩ KPMP-scRNA   : %d\n", ic("in_fan_bulk_x_kpmp_bulk_x_kpmp_scrna")))
-cat(sprintf("  Fan-bulk  ∩ KPMP-bulk  ∩ KPMP-snRNA   : %d\n", ic("in_fan_bulk_x_kpmp_bulk_x_kpmp_snrna")))
-cat(sprintf("  Fan-bulk  ∩ KPMP-scRNA ∩ KPMP-snRNA   : %d\n", ic("in_fan_bulk_x_kpmp_scrna_x_kpmp_snrna")))
-cat(sprintf("  KPMP-bulk ∩ KPMP-scRNA ∩ KPMP-snRNA   : %d\n", ic("in_kpmp_bulk_x_kpmp_scrna_x_kpmp_snrna")))
-cat(sprintf("  All four datasets                     : %d\n", ic("in_all_four_datasets")))
+cat(sprintf("  Fan-bulk  ∩ KPMP-scRNA ∩ KPMP-snRNA   : %d\n", ic("in_all_three_datasets")))

@@ -1,8 +1,5 @@
 "Dataset","Analysis","Compartment","Normal/Healthy","Early DKD","Advanced DKD","AKI","CKD","Total","In figures","Figure panels","Note"
 "Fan DKD bulk","All conditions","Whole tissue",9,6,21,0,0,36,"yes","1a, 1b, 2a, 3a, 4a, 5a, 6a, S1a, S2a, S3a",""
-"KPMP bulk","All conditions","Whole tissue",0,0,0,11,13,24,"no","none","CKD: DKD 7, HKD 3, other 3 | not analyzed: no healthy samples; AKI/CKD cannot be compared with Normal of another cohort"
-"Combined bulk","All conditions","Whole tissue",9,6,21,11,13,60,"no","none","not analyzed: cohort and diagnosis confounded (S43)"
-"Combined bulk","DKD-focused","Whole tissue",9,6,21,11,7,54,"no","none","not analyzed: cohort and diagnosis confounded (S43)"
 "KPMP scRNA-seq","All conditions","PT",33,0,0,20,49,102,"yes","1c",""
 "KPMP scRNA-seq","All conditions","Stroma",36,0,0,15,41,92,"yes","2b, 3b, 4b, 5b, S1b, S2b, S3b","stroma class: FIB 18%, VSMC/P 82%"
 "KPMP scRNA-seq","All conditions","Fibroblasts",5,0,0,3,6,14,"no","none","not analyzed: fewer than 20 fibroblasts in most participants"

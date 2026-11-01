@@ -56,7 +56,12 @@
 #     Figure_S7  bulk/scRNA-seq ECM          (former Figure 5a-c)
 #     Figure_S8  P2RY6 vs ECM                (fs3; former Figure S4, file Figure_S3)
 #     Figure_S10 PT pyrimidine vs ECM        (f6a-f6e; former Figure 6)
-#   Figures S1 and S9 come from S86 and S84. The panel objects keep their names
+#   Revision 1 (comment of A. Figurek on ms_rev1_v48_AF): the leave-one-gene-
+#   out analysis is first cited in Section 3.1, so the module gene figure
+#   (S84) becomes Figure S2 and Figures S2-S8 above become S3-S9 (output files
+#   renamed accordingly: Figure_S3 P2RY6, S4 calcium, S5 P2RY6 vs calcium,
+#   S6 PDGFRB, S7 P2RY6 vs PDGFRB, S8 ECM, S9 P2RY6 vs ECM, S10 unchanged).
+#   Figures S1 and S2 come from S86 and S84. The panel objects keep their names
 #   (f2a-f2e, ..., f6a-f6e, fs1a-fs3e), which S81, S85 and S89 use.
 #   (**) Axes swapped relative to S50-S62 (P2RY6 on x, PDGFRB on y) so that
 #       P2RY6 is on the x-axis in all supplementary correlation figures.
@@ -75,7 +80,7 @@
 #   - extra top margin per panel to make room for the panel label
 #
 # Outputs: 04-Outputs/S80_Manuscript_Figures/Figure_<n>.png / .pdf (manuscript
-#          numbers: Figures 1-6 and Supplementary Figures S2-S8, S10)
+#          numbers: Figures 1-6 and Supplementary Figures S3-S10)
 # ============================================================================#
 
 rm(list = ls())
@@ -175,27 +180,87 @@ spearman_ci <- function(x, y) {
 # Correlation labels with Benjamini-Hochberg-adjusted p-values ----
 # Revision 1 (R1.07): the Spearman p-values of the panels of one correlation
 # figure are BH-adjusted together; the label layer of each panel is rewritten.
-# The same family is used in S85_Correlation_Stats.R (Table S4).
-bh_cor_panels <- function(panels) {
+# The same families are used in S85_Correlation_Stats.R (Table S7).
+# Revision 1 (V. Mitov, after ms_rev1_v48_AF): each panel also shows the
+# within-condition linear fits in the colour of the condition's points and one
+# label line per stratum in the top right corner: all participants (black;
+# BH-adjusted over the five panels) and each condition with n >= 5 (BH-adjusted
+# over all within-condition correlations of the figure), as in Table S7.
+# Conditions with fewer than five samples get no line and are listed as n < 5.
+# Panel (b) (scRNA-seq, all conditions) is coloured by condition instead of
+# by adjudicated category, so that its lines and labels match the points.
+cor_group_labels <- c(legend_short, "Normal" = "Normal", "Early_DKD" = "Early DKD",
+                      "Advanced_DKD" = "Adv. DKD", "AKI" = "AKI", "CKD" = "CKD")
+cor_group_colors <- c("Normal" = "#2166ac", "Early_DKD" = "#f4a582", "Advanced_DKD" = "#d6604d",
+                      "Healthy Reference Tissue" = "#2166ac", "Acute Kidney Injury" = "#e07b39",
+                      "Chronic Kidney Disease" = "#756bb1", "Healthy Reference" = "#2166ac",
+                      "AKI" = "#e07b39", "CKD" = "#756bb1")
+cor_cond_col <- function(d) intersect(c("condition", "EnrollmentCategory", "enrollment"), names(d))[1]
+fmt_p_lab <- function(p) {
+  f <- format_p_s6(p); if (startsWith(f, "<")) f else paste("=", f)
+}
+
+bh_cor_panels <- function(panels, min_n = 5) {
   is_lab <- function(l) inherits(l$geom, "GeomText") && !is.null(l$aes_params$label)
-  cts <- lapply(panels, function(p) {
-    x <- rlang::eval_tidy(p$mapping$x, p$data); y <- rlang::eval_tidy(p$mapping$y, p$data)
-    spearman_ci(x, y)
+  dat <- lapply(panels, function(p) {
+    d <- p$data
+    x <- rlang::eval_tidy(p$mapping$x, d); y <- rlang::eval_tidy(p$mapping$y, d)
+    g <- d[[cor_cond_col(d)]]
+    lv <- if (is.factor(g)) levels(droplevels(g)) else unique(as.character(g))
+    keep <- !is.na(x) & !is.na(y)
+    data.frame(x = x[keep], y = y[keep], g = factor(as.character(g[keep]), levels = lv))
   })
+  # pooled: one family over the five panels
+  cts   <- lapply(dat, function(d) spearman_ci(d$x, d$y))
   p_adj <- p.adjust(vapply(cts, `[[`, numeric(1), "p"), method = "BH")
-  p_txt <- vapply(p_adj, function(p) {
-    f <- format_p_s6(p); if (startsWith(f, "<")) f else paste("=", f)
-  }, character(1))
-  Map(function(p, ct, pt) {
-    i <- which(vapply(p$layers, is_lab, logical(1)))
-    stopifnot(length(i) == 1)
-    p$layers[[i]]$aes_params$label <- if (is.na(ct$ci_lo)) {
-      sprintf("rho = %.2f\nBH-adjusted p %s", ct$rho, pt)
-    } else {
-      sprintf("rho = %.2f [%.2f, %.2f]\nBH-adjusted p %s", ct$rho, ct$ci_lo, ct$ci_hi, pt)
+  # within condition (n >= min_n): one family over all panels
+  w <- bind_rows(lapply(seq_along(dat), function(i) {
+    bind_rows(lapply(split(dat[[i]], dat[[i]]$g), function(s) {
+      if (nrow(s) == 0) return(NULL)
+      if (nrow(s) < min_n) return(data.frame(panel = i, g = as.character(s$g[1]), n = nrow(s),
+                                             rho = NA_real_, p = NA_real_))
+      ct <- spearman_ci(s$x, s$y)
+      data.frame(panel = i, g = as.character(s$g[1]), n = ct$n, rho = ct$rho, p = ct$p)
+    }))
+  }))
+  w$p_bh <- NA_real_
+  ok <- !is.na(w$p)
+  w$p_bh[ok] <- p.adjust(w$p[ok], method = "BH")
+  lapply(seq_along(panels), function(i) {
+    p <- panels[[i]]; d <- dat[[i]]
+    i_lab <- which(vapply(p$layers, is_lab, logical(1)))
+    stopifnot(length(i_lab) == 1)
+    p$layers <- p$layers[-i_lab]
+    wi <- w[w$panel == i, ]
+    wi <- wi[order(match(wi$g, levels(d$g))), ]
+    labs_txt <- c(sprintf("All: rho = %.2f, BH-adj. p %s", cts[[i]]$rho, fmt_p_lab(p_adj[i])),
+                  ifelse(is.na(wi$p),
+                         sprintf("%s: n = %d (< %d)", cor_group_labels[wi$g], wi$n, min_n),
+                         sprintf("%s: rho = %.2f, BH-adj. p %s", cor_group_labels[wi$g], wi$rho,
+                                 vapply(wi$p_bh, function(q) if (is.na(q)) "NA" else fmt_p_lab(q),
+                                        character(1)))))
+    labs_col <- c("black", unname(cor_group_colors[wi$g]))
+    # Panel (b) of the scRNA-seq data: colour the points by condition
+    if (identical(rlang::as_label(p$mapping$colour), "point_color")) {
+      p$mapping$colour <- rlang::quo(EnrollmentCategory)
+      p <- p + scale_color_manual(values = cor_group_colors, name = NULL, drop = TRUE,
+                                  labels = short_labels) +
+        theme(legend.text = element_text(size = rel(0.8)))
+      p$labels$title <- sub(" (adjudicated)", "", p$labels$title, fixed = TRUE)
     }
-    p
-  }, panels, cts, p_txt)
+    fit_d <- d[d$g %in% wi$g[!is.na(wi$p)], ]
+    smooth_layer <- geom_smooth(data = fit_d, aes(x = x, y = y, colour = g, group = g),
+                                method = "lm", formula = y ~ x, se = FALSE,
+                                linewidth = 0.7, inherit.aes = FALSE, show.legend = FALSE)
+    # within-condition fits below the pooled (black) fit
+    i_pool <- which(vapply(p$layers, function(l) inherits(l$geom, "GeomSmooth"), logical(1)))[1]
+    p$layers <- append(p$layers, list(smooth_layer), after = i_pool - 1)
+    for (k in seq_along(labs_txt)) {
+      p <- p + annotate("text", x = Inf, y = Inf, label = labs_txt[k], colour = labs_col[k],
+                        hjust = 1.03, vjust = 1.3 + 1.6 * (k - 1), size = 3.5)
+    }
+    p + scale_y_continuous(expand = ggplot2::expansion(mult = c(0.05, 0.06 + 0.09 * length(labs_txt))))
+  })
 }
 
 theme_box <- function() {
@@ -644,7 +709,7 @@ save_figure(list(f1a, f1b, f1c, f1d, f1e, f1f), "Figure_1",
             width = 15, heights = c(6.2, 5.6, 5.6))
 
 # ============================================================================#
-# FIGURE 2 AND SUPPLEMENTARY FIGURE S2 — P2RY6 ----
+# FIGURE 2 AND SUPPLEMENTARY FIGURE S3 — P2RY6 ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -668,11 +733,11 @@ f2e <- s62_fib_box("mean_P2RY6", "P2RY6 mean expression (pseudobulk)",
 # panels (d, e -> a, b); bulk and scRNA-seq panels (a-c) -> Figure S2
 save_figure(list(f2d, f2e), "Figure_2",
             width = 15, heights = 5.6)
-save_figure(list(NULL, f2a, f2b, f2c), "Figure_S2",
+save_figure(list(NULL, f2a, f2b, f2c), "Figure_S3",
             width = 15, heights = c(6.2, 5.6))
 
 # ============================================================================#
-# FIGURE 3 AND SUPPLEMENTARY FIGURE S3 — Calcium signaling score ----
+# FIGURE 3 AND SUPPLEMENTARY FIGURE S4 — Calcium signaling score ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -695,11 +760,11 @@ f3e <- s62_fib_box("mean_calcium_score", "Calcium signaling score (mean expressi
 # panels (d, e -> a, b); bulk and scRNA-seq panels (a-c) -> Figure S3
 save_figure(list(f3d, f3e), "Figure_3",
             width = 15, heights = 5.6)
-save_figure(list(NULL, f3a, f3b, f3c), "Figure_S3",
+save_figure(list(NULL, f3a, f3b, f3c), "Figure_S4",
             width = 15, heights = c(6.2, 5.6))
 
 # ============================================================================#
-# FIGURE 4 AND SUPPLEMENTARY FIGURE S5 — PDGFRB ----
+# FIGURE 4 AND SUPPLEMENTARY FIGURE S6 — PDGFRB ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -721,11 +786,11 @@ f4e <- s62_fib_box("mean_PDGFRB", "PDGFRB mean expression (pseudobulk)",
 # panels (d, e -> a, b); bulk and scRNA-seq panels (a-c) -> Figure S5
 save_figure(list(f4d, f4e), "Figure_4",
             width = 15, heights = 5.6)
-save_figure(list(NULL, f4a, f4b, f4c), "Figure_S5",
+save_figure(list(NULL, f4a, f4b, f4c), "Figure_S6",
             width = 15, heights = c(6.2, 5.6))
 
 # ============================================================================#
-# FIGURE 5 AND SUPPLEMENTARY FIGURE S7 — ECM score ----
+# FIGURE 5 AND SUPPLEMENTARY FIGURE S8 — ECM score ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -747,7 +812,7 @@ f5e <- s62_fib_box("mean_ecm_score", "ECM score (mean expression)",
 # panels (d, e -> a, b); bulk and scRNA-seq panels (a-c) -> Figure S7
 save_figure(list(f5d, f5e), "Figure_5",
             width = 15, heights = 5.6)
-save_figure(list(NULL, f5a, f5b, f5c), "Figure_S7",
+save_figure(list(NULL, f5a, f5b, f5c), "Figure_S8",
             width = 15, heights = c(6.2, 5.6))
 
 # ============================================================================#
@@ -840,7 +905,7 @@ fig6_ckd <- within_cor_panel("CKD")
 save_figure(list(fig6_aki, fig6_ckd), "Figure_6", width = 13, heights = 5.6)
 
 # ============================================================================#
-# SUPPLEMENTARY FIGURE S4 (fs1) — P2RY6 vs Calcium score ----
+# SUPPLEMENTARY FIGURE S5 (fs1) — P2RY6 vs Calcium score ----
 # ============================================================================#
 
 # (a) S20 (Fan DKD cohort; centred in the top row)
@@ -872,11 +937,11 @@ fs1e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_calcium_score",
 
 # BH-adjusted p-values over the five panels (R1.07)
 fs1_bh <- bh_cor_panels(list(fs1a, fs1b, fs1c, fs1d, fs1e))
-save_figure(c(list(NULL), fs1_bh), "Figure_S4",
+save_figure(c(list(NULL), fs1_bh), "Figure_S5",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
-# SUPPLEMENTARY FIGURE S6 (fs2) — P2RY6 vs PDGFRB ----
+# SUPPLEMENTARY FIGURE S7 (fs2) — P2RY6 vs PDGFRB ----
 # ============================================================================#
 # Axes swapped relative to the source panels (P2RY6 on x, PDGFRB on y), as in
 # Figures S1 and S3. Spearman rho is symmetric; only the linear fit line changes.
@@ -910,11 +975,11 @@ fs2e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_PDGFRB",
 
 # BH-adjusted p-values over the five panels (R1.07)
 fs2_bh <- bh_cor_panels(list(fs2a, fs2b, fs2c, fs2d, fs2e))
-save_figure(c(list(NULL), fs2_bh), "Figure_S6",
+save_figure(c(list(NULL), fs2_bh), "Figure_S7",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 # ============================================================================#
-# SUPPLEMENTARY FIGURE S8 (fs3) — P2RY6 vs ECM score ----
+# SUPPLEMENTARY FIGURE S9 (fs3) — P2RY6 vs ECM score ----
 # ============================================================================#
 # Not present in Figures.pptx (slide duplicated Suppl. Figure 2); assembled
 # from the P2RY6 vs ECM outputs following the layout of Figures S1-S2.
@@ -948,7 +1013,7 @@ fs3e <- sc_cor(pb_fib_s62, "mean_P2RY6", "mean_ecm_score",
 
 # BH-adjusted p-values over the five panels (R1.07)
 fs3_bh <- bh_cor_panels(list(fs3a, fs3b, fs3c, fs3d, fs3e))
-save_figure(c(list(NULL), fs3_bh), "Figure_S8",
+save_figure(c(list(NULL), fs3_bh), "Figure_S9",
             width = 16, heights = c(5.6, 5.2, 5.2))
 
 cat("\nS80 complete. Figures saved to:", out_dir, "\n")

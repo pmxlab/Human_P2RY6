@@ -1,8 +1,8 @@
 # ============================================================================#
 # S89_Group_Comparisons.R
 # Exact BH-adjusted p-values and effect sizes for all group comparisons of
-# Figures 1-5 and Supplementary Figures S2, S3, S5 and S7 (Supplementary
-# Table S9; Table S8 before the supplements were renumbered in order of
+# Figures 1-5 and Supplementary Figures S3, S4, S6 and S8 (S2, S3, S5 and S7
+# before ms_rev1_v48_AF; Supplementary Table S9; Table S8 before the supplements were renumbered in order of
 # citation, Revision 1). Revision 1 (ms_rev1_v42_AF): panels (a)-(c) of the
 # former Figures 2-5 are Supplementary Figures S2, S3, S5 and S7, and panels
 # (d, e) are Figures 2-5 (a, b); column 'label' gives the manuscript panel.
@@ -77,8 +77,9 @@ stopifnot(all(panel_ids %in% ls(env)))
 # 2. COMPARISONS PER PANEL ----
 # ============================================================================#
 
-# manuscript panel labels (Revision 1, ms_rev1_v42_AF)
-supp_of <- c("2" = "S2", "3" = "S3", "4" = "S5", "5" = "S7")
+# manuscript panel labels (Revision 1, ms_rev1_v42_AF; renumbered after
+# ms_rev1_v48_AF, where the module gene figure became Figure S2)
+supp_of <- c("2" = "S3", "3" = "S4", "4" = "S6", "5" = "S8")
 panel_label <- function(id) {
   fig <- substr(id, 2, 2); let <- substr(id, 3, 3)
   if (fig == "1") return(paste0("1", if (let == "a") "a" else chartr("bcdef", "abcde", let)))
@@ -128,7 +129,7 @@ md_tab <- tab %>%
             `n` = paste(n_disease, "/", n_control),
             `Median (IQR), disease` = median_disease, `Median (IQR), control` = median_control,
             `Cliff's delta` = sprintf("%.2f", cliffs_delta), `BH-adjusted p` = fmt_p(p_BH))
-md <- c("# Table S9. Group comparisons of Figures 1-5 and Supplementary Figures S2, S3, S5 and S7", "",
+md <- c("# Table S9. Group comparisons of Figures 1-5 and Supplementary Figures S3, S4, S6 and S8", "",
         paste0("| ", paste(names(md_tab), collapse = " | "), " |"),
         paste0(paste(rep("|---", ncol(md_tab)), collapse = ""), "|"),
         apply(md_tab, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |")))

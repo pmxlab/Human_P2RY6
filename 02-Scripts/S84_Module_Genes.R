@@ -34,7 +34,7 @@
 #   The full scores are checked against the stars drawn by S80.
 #
 # Outputs: 04-Outputs/S84_Module_Genes/
-#   Fig_genes_<module>.png/.pdf, Figure_S4a-c.png (Supplementary Figure S4),
+#   Fig_genes_<module>.png/.pdf, Figure_S4a-c.png (Supplementary Figure S2 since ms_rev1_v48_AF),
 #   Table_gene_tests.csv/.md,
 #   Table_LOGO_all.csv, Table_LOGO_summary.csv/.md
 # =========================================================================== #

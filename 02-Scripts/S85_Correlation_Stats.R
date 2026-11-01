@@ -1,12 +1,12 @@
 # ============================================================================#
 # S85_Correlation_Stats.R
 # Correlation statistics for all correlation panels of the manuscript
-# (Supplementary Figures S4, S6, S8 and S10; Figure 6): pooled, adjusted for condition
+# (Supplementary Figures S5, S7, S9 and S10; Figure 6): pooled, adjusted for condition
 # and within condition, with multiple-testing correction.
 # Figures and tables are labelled with the manuscript numbering (Revision 1,
 # after ms_rev1_v42_AF): the correlation figures f6 and fs1-fs3 of S80 are
-# Supplementary Figures S10 (former Figure 6), S4, S6 and S8 (former S2-S4),
-# and the compact table is Table S6; the output file names are unchanged.
+# Supplementary Figures S10 (former Figure 6), S5, S7 and S9 (former S2-S4),
+# and the compact table is Table S7 (Table S6 before ms_rev1_v48_AF); the output file names are unchanged.
 # The new Figure 6 shows the within-AKI and within-CKD rows of panel S10d.
 # Reviewer comments R1.07, R2.04, R2.07 (Life, life-4655118)
 #
@@ -27,7 +27,7 @@
 #
 # Outputs: 04-Outputs/S85_Correlation_Stats/
 #   Table_correlations_all.csv     long table (all statistics)
-#   Table_S4_correlations.csv/.md  compact supplementary table (Table S6)
+#   Table_S4_correlations.csv/.md  compact supplementary table (Table S7)
 # Revision 1 (AIReview1 B6): Table S6 also lists the correlation of the PT
 #   pyrimidine score with stromal (scRNA-seq) and fibroblast (snRNA-seq) P2RY6
 #   expression reported in Section 3.6 (figure "3.6", own BH family).
@@ -52,10 +52,13 @@ min_n_within <- 5
 
 panel_ids <- c(paste0("f6", letters[1:5]), paste0("fs", rep(1:3, each = 5), letters[1:5]))
 
+# Revision 1 (A. Figurek, ms_rev1_v48_AF): supplementary figures renumbered
+# (Figure S2 = module genes), so fs1-fs3 are Figures S5, S7, S9 and the compact
+# table is Table S7
 pairs <- c("S10" = "PT pyrimidine score vs ECM score",
-           "S4"  = "P2RY6 vs calcium score",
-           "S6"  = "P2RY6 vs PDGFRB",
-           "S8"  = "P2RY6 vs ECM score")
+           "S5"  = "P2RY6 vs calcium score",
+           "S7"  = "P2RY6 vs PDGFRB",
+           "S9"  = "P2RY6 vs ECM score")
 
 dataset_of <- c(a = "Fan DKD bulk RNA-seq", b = "KPMP scRNA-seq", c = "KPMP scRNA-seq",
                 d = "KPMP snRNA-seq", e = "KPMP snRNA-seq")
@@ -130,8 +133,8 @@ panel_data <- function(id) {
 # ============================================================================#
 
 res <- bind_rows(lapply(panel_ids, function(id) {
-  # S80 f6 -> Figure S10; fs1-fs3 -> Figures S4, S6, S8
-  fig    <- if (startsWith(id, "fs")) c("S4", "S6", "S8")[as.integer(substr(id, 3, 3))] else "S10"
+  # S80 f6 -> Figure S10; fs1-fs3 -> Figures S5, S7, S9
+  fig    <- if (startsWith(id, "fs")) c("S5", "S7", "S9")[as.integer(substr(id, 3, 3))] else "S10"
   letter <- sub(".*([a-e])$", "\\1", id)
   d <- panel_data(id)
   # Revision 1 (Table S6 labels, 1 Nov 2026): name the compartment of each
@@ -195,7 +198,7 @@ chk <- sapply(panel_ids, function(id) {
 stopifnot(isTRUE(all.equal(unname(chk), res$rho[res$type == "pooled" & res$figure != "3.6"])))
 
 # check: Figure 6 (within AKI and within CKD of panel S10d) shows the same
-# rho and BH-adjusted p-values as Table S6
+# rho and BH-adjusted p-values as Table S7
 w_tab <- res %>% filter(panel == "S10d", type == "within condition", condition %in% c("AKI", "CKD")) %>%
   arrange(as.character(condition))
 w_fig <- env$w_s10 %>% filter(panel == 4, condition %in% c("AKI", "CKD")) %>% arrange(condition)
@@ -218,7 +221,7 @@ tab <- res %>%
   select(Figure = panel, Correlation = pair, Dataset = dataset, Analysis = analysis,
          Stratum = stratum, n, `rho [95% CI]` = rho_ci, p = p_txt, `p (BH)` = pBH_txt)
 write.csv(tab, file.path(out_dir, "Table_S4_correlations.csv"), row.names = FALSE)
-writeLines(c(paste("# Table S6. Spearman correlations of Figure 6 and Supplementary Figures S4, S6, S8 and S10,",
+writeLines(c(paste("# Table S7. Spearman correlations of Figure 6 and Supplementary Figures S5, S7, S9 and S10,",
                "and of the PT pyrimidine score with stromal and fibroblast P2RY6 expression (Section 3.6):",
                "pooled, adjusted for condition and within each condition"), "",
              paste("|", paste(names(tab), collapse = " | "), "|"),

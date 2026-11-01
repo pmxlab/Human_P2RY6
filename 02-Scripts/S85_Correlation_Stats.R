@@ -134,7 +134,12 @@ res <- bind_rows(lapply(panel_ids, function(id) {
   fig    <- if (startsWith(id, "fs")) c("S4", "S6", "S8")[as.integer(substr(id, 3, 3))] else "S10"
   letter <- sub(".*([a-e])$", "\\1", id)
   d <- panel_data(id)
-  meta <- data.frame(figure = fig, panel = paste0(fig, letter), pair = pairs[[fig]],
+  # Revision 1 (Table S6 labels, 1 Nov 2026): name the compartment of each
+  # variable (stromal ECM in scRNA-seq, fibroblast ECM in snRNA-seq)
+  pair <- if (fig == "S10" && letter != "a")
+    paste0("PT pyrimidine score vs ", if (letter %in% c("b", "c")) "stromal" else "fibroblast", " ECM score")
+  else pairs[[fig]]
+  meta <- data.frame(figure = fig, panel = paste0(fig, letter), pair = pair,
                      dataset = dataset_of[[letter]], analysis = analysis_of[[letter]])
   pooled <- cbind(meta, type = "pooled", condition = "all", spearman(d$x, d$y))
   adj    <- cbind(meta, type = "adjusted for condition", condition = "all",
@@ -156,8 +161,10 @@ res_p2ry6 <- bind_rows(lapply(c("b", "c", "d", "e"), function(letter) {
   d <- data.frame(x = d0$pyrim_score, y = d0$mean_P2RY6,
                   condition = unname(cond_map[as.character(d0[[cond_col]])]))
   d <- d[!is.na(d$x) & !is.na(d$y), ]
-  meta <- data.frame(figure = "3.6", panel = paste0("3.6 (as S10", letter, ")"),
-                     pair = if (letter %in% c("b", "c")) "PT pyrimidine score vs stroma P2RY6"
+  # Revision 1 (Table S6 labels, 1 Nov 2026): these rows are not shown in a
+  # figure; the S10 letter only identifies the matched participants
+  meta <- data.frame(figure = "3.6", panel = paste0("Section 3.6 (participants of S10", letter, ")"),
+                     pair = if (letter %in% c("b", "c")) "PT pyrimidine score vs stromal P2RY6"
                             else "PT pyrimidine score vs fibroblast P2RY6",
                      dataset = dataset_of[[letter]], analysis = analysis_of[[letter]])
   within <- bind_rows(lapply(split(d, d$condition), function(dd) {
@@ -169,7 +176,7 @@ res_p2ry6 <- bind_rows(lapply(c("b", "c", "d", "e"), function(letter) {
                   partial_spearman(d$x, d$y, d$condition)),
             within)
 }))
-pairs <- c(pairs, "3.6" = "PT pyrimidine score vs P2RY6")
+pairs <- c(pairs, "3.6" = "PT pyrimidine score vs stromal or fibroblast P2RY6")
 res <- bind_rows(res, res_p2ry6)
 
 res <- res %>%
@@ -211,7 +218,9 @@ tab <- res %>%
   select(Figure = panel, Correlation = pair, Dataset = dataset, Analysis = analysis,
          Stratum = stratum, n, `rho [95% CI]` = rho_ci, p = p_txt, `p (BH)` = pBH_txt)
 write.csv(tab, file.path(out_dir, "Table_S4_correlations.csv"), row.names = FALSE)
-writeLines(c("# Table S6. Correlations: pooled, adjusted for condition and within condition", "",
+writeLines(c(paste("# Table S6. Spearman correlations of Figure 6 and Supplementary Figures S4, S6, S8 and S10,",
+               "and of the PT pyrimidine score with stromal and fibroblast P2RY6 expression (Section 3.6):",
+               "pooled, adjusted for condition and within each condition"), "",
              paste("|", paste(names(tab), collapse = " | "), "|"),
              paste0(paste(rep("|---", ncol(tab)), collapse = ""), "|"),
              apply(tab, 1, function(r) paste("|", paste(r, collapse = " | "), "|"))),
